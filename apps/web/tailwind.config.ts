@@ -5,18 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       boxShadow: {
-        glow: "0 20px 60px rgba(56, 189, 248, 0.18)",
+        soft: "0 24px 60px rgba(72, 58, 42, 0.08)",
       },
       colors: {
-        ink: {
-          950: "#050816",
-          900: "#0B1020",
-          800: "#121A33",
+        paper: {
+          50: "#fdfbf8",
+          100: "#f7f3ea",
+          200: "#ede3d2",
         },
-        accent: {
-          300: "#7DD3FC",
-          400: "#38BDF8",
-          500: "#0EA5E9",
+        moss: {
+          300: "#9bc7b5",
+          400: "#5f9b86",
+          500: "#2f6f5f",
         },
       },
     },

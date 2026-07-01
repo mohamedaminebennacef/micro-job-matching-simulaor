@@ -224,54 +224,21 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_35%),linear-gradient(180deg,#050816_0%,#090d1d_52%,#0b1020_100%)]">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-6 py-8 lg:px-10">
-        <header className="flex flex-col gap-5 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.28em] text-sky-200">
-              CampusGigs simulator
-            </div>
-            <h1
-              className="max-w-xl text-4xl font-semibold tracking-tight text-white md:text-6xl"
-              style={{ fontFamily: "var(--font-space-grotesk)" }}
-            >
-              Instant campus gig matching, ranked in seconds.
-            </h1>
-            <p className="max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
-              Post a micro-job, send five curated student profiles into the
-              matching chamber, and assign the best fit without waiting on
-              search tools or manual screening.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-sm md:min-w-[300px]">
-            <Metric label="Profiles" value="5 mock students" />
-            <Metric label="Flow" value="Post → Rank → Assign" />
-            <Metric label="Backend" value="NestJS API" />
-            <Metric label="Storage" value="Supabase ready" />
-          </div>
-        </header>
-
+    <main className="flex min-h-screen items-center justify-center overflow-hidden bg-white text-slate-800">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:px-10">
         <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <form
             onSubmit={submitGig}
-            className="rounded-[2rem] border border-white/10 bg-ink-900/80 p-6 shadow-glow backdrop-blur-xl"
+            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <h2
-                  className="text-2xl font-semibold text-white"
-                  style={{ fontFamily: "var(--font-space-grotesk)" }}
+                  className="text-2xl font-semibold text-slate-900"
                 >
-                  Gig intake
+                  Create a Campus Gig
                 </h2>
-                <p className="mt-1 text-sm text-slate-400">
-                  Manager submits the job and the leaderboard appears
-                  immediately.
-                </p>
               </div>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-                Live simulation
-              </span>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -305,7 +272,7 @@ export default function Home() {
             </div>
 
             <label className="mt-4 block space-y-2">
-              <span className="text-sm font-medium text-slate-300">
+              <span className="text-sm font-medium text-slate-700">
                 Description
               </span>
               <textarea
@@ -316,47 +283,46 @@ export default function Home() {
                   handleChange("description", event.target.value)
                 }
                 placeholder="Detailed job description, success criteria, and any special constraints."
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isPending}
               >
                 {isPending ? "Matching..." : "Start matching"}
               </button>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 The API can be replaced with Supabase persistence and an LLM
                 prompt later.
               </p>
             </div>
 
             {error ? (
-              <p className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {error}
               </p>
             ) : null}
           </form>
 
-          <aside className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl">
+          <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <h2
-                  className="text-2xl font-semibold text-white"
-                  style={{ fontFamily: "var(--font-space-grotesk)" }}
+                  className="text-2xl font-semibold text-slate-900"
                 >
                   Leaderboard
                 </h2>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-slate-600">
                   Candidates are sorted automatically from strongest match to
                   weakest.
                 </p>
               </div>
               {lowAlignment ? (
-                <span className="rounded-full border border-rose-400/30 bg-rose-400/10 px-3 py-1 text-xs text-rose-100">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs text-amber-900">
                   Low candidate alignment detected
                 </span>
               ) : null}
@@ -365,27 +331,27 @@ export default function Home() {
             {result ? (
               <div className="space-y-4">
                 {tiedLeaders.length > 1 ? (
-                  <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-4 text-sm text-sky-50">
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700">
                     Tie detected at the top. Manager can manually pick between
                     the leaders.
                   </div>
                 ) : null}
 
-                <div className="rounded-3xl border border-white/10 bg-ink-800/70 p-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-sky-300">
+                      <p className="text-xs uppercase tracking-[0.3em] text-blue-600">
                         Best match
                       </p>
-                      <h3 className="mt-1 text-lg font-semibold text-white">
+                      <h3 className="mt-1 text-lg font-semibold text-slate-900">
                         {topCandidate?.student.name ?? "No candidate found"}
                       </h3>
                     </div>
-                    <div className="rounded-full bg-sky-400 px-3 py-1 text-sm font-semibold text-slate-950">
+                    <div className="rounded-full bg-blue-600 px-3 py-1 text-sm font-semibold text-white">
                       {topCandidate?.matchPercent ?? 0}%
                     </div>
                   </div>
-                  <p className="text-sm leading-6 text-slate-300">
+                  <p className="text-sm leading-6 text-slate-600">
                     {topCandidate?.justification ??
                       "No candidate summary available yet."}
                   </p>
@@ -400,32 +366,32 @@ export default function Home() {
                     return (
                       <article
                         key={candidate.student.id}
-                        className={`rounded-3xl border p-4 transition ${isBest ? "border-sky-400/30 bg-sky-400/10" : "border-white/10 bg-ink-800/60"}`}
+                        className={`rounded-xl border p-4 transition ${isBest ? "border-blue-200 bg-blue-50" : "border-slate-200 bg-white"}`}
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="text-base font-semibold text-white">
+                              <h4 className="text-base font-semibold text-slate-900">
                                 {candidate.student.name}
                               </h4>
                               {isBest ? (
-                                <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-950">
+                                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
                                   Best Match
                                 </span>
                               ) : null}
                               {isAssigned ? (
-                                <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
+                                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-900">
                                   Assigned
                                 </span>
                               ) : null}
                             </div>
-                            <p className="mt-1 text-sm text-slate-400">
+                            <p className="mt-1 text-sm text-slate-600">
                               {candidate.student.major} ·{" "}
                               {candidate.student.skills.join(" • ")}
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-semibold text-white">
+                            <div className="text-xl font-semibold text-slate-900">
                               {candidate.matchPercent}%
                             </div>
                             <div className="text-xs uppercase tracking-[0.24em] text-slate-500">
@@ -433,13 +399,13 @@ export default function Home() {
                             </div>
                           </div>
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-slate-300">
+                        <p className="mt-3 text-sm leading-6 text-slate-600">
                           {candidate.justification}
                         </p>
                         <button
                           type="button"
                           onClick={() => assignGig(candidate.student.id)}
-                          className="mt-4 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:border-sky-400/40 hover:bg-sky-400/10 disabled:opacity-60"
+                          className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
                           disabled={isPending || result.status === "Assigned"}
                         >
                           Assign Gig
@@ -450,7 +416,7 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="flex min-h-[28rem] items-center justify-center rounded-[1.5rem] border border-dashed border-white/10 bg-ink-800/50 px-6 text-center text-sm leading-7 text-slate-400">
+              <div className="flex min-h-[28rem] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 text-center text-sm leading-7 text-slate-500">
                 Submit a gig to populate the matching chamber. The leaderboard,
                 justification snippet, and assign action will fill in instantly.
               </div>
@@ -459,17 +425,6 @@ export default function Home() {
         </section>
       </div>
     </main>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-ink-800/70 px-4 py-3">
-      <div className="text-[11px] uppercase tracking-[0.28em] text-slate-500">
-        {label}
-      </div>
-      <div className="mt-2 text-sm font-medium text-white">{value}</div>
-    </div>
   );
 }
 
@@ -490,10 +445,10 @@ function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-sm font-medium text-slate-300">{label}</span>
+      <span className="text-sm font-medium text-slate-700">{label}</span>
       <div className="relative">
         {prefix ? (
-          <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm text-slate-400">
+          <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm text-slate-500">
             {prefix}
           </span>
         ) : null}
@@ -503,7 +458,7 @@ function Field({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className={`w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 ${prefix ? "pl-8" : ""}`}
+          className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${prefix ? "pl-8" : ""}`}
         />
       </div>
     </label>
