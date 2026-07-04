@@ -6,22 +6,34 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:seed": "prisma db seed",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
     "@nestjs/core": "^10.4.15",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^7.4.2",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
-    "swagger-ui-express": "^5.0.1",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.20.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^6.19.3",
     "tsx": "^4.19.2",
     "typescript": "^5.5.4"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

@@ -1,0 +1,260 @@
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const seedStudents = [
+  {
+    fullName: "Maya Thompson",
+    major: "History",
+    graduationYear: 2026,
+    bio: "Archivist-minded student who enjoys preserving campus records and helping with museum exhibits.",
+    experience: "Worked in the university archive, catalogued donor materials, and supported oral history events.",
+    skills: ["Archiving", "Organization", "Document care"],
+    interests: ["libraries", "archives", "campus history"],
+  },
+  {
+    fullName: "Ethan Park",
+    major: "Computer Science",
+    graduationYear: 2027,
+    bio: "Technical student who enjoys building useful tools and supporting quick troubleshooting tasks.",
+    experience: "Built campus workflow scripts, helped classmates debug web apps, and supported hackathon operations.",
+    skills: ["Python", "React", "Debugging"],
+    interests: ["automation", "hackathons", "productivity"],
+  },
+  {
+    fullName: "Amina Hassan",
+    major: "Business Administration",
+    graduationYear: 2026,
+    bio: "Detail-oriented operations student with a strong interest in logistics, scheduling, and student engagement.",
+    experience: "Coordinated event staffing, managed volunteer schedules, and supported student organization budgets.",
+    skills: ["Scheduling", "Logistics", "Communication"],
+    interests: ["event planning", "operations", "people"],
+  },
+  {
+    fullName: "Noah Kim",
+    major: "Design",
+    graduationYear: 2027,
+    bio: "Visual communicator who likes making campus materials clear, polished, and easy to notice.",
+    experience: "Designed flyers for student clubs, created presentation templates, and supported branding for events.",
+    skills: ["Canva", "Flyer layout", "Typography"],
+    interests: ["posters", "branding", "campus marketing"],
+  },
+  {
+    fullName: "Sofia Alvarez",
+    major: "Biology",
+    graduationYear: 2026,
+    bio: "Methodical science student with a sharp eye for detail and hands-on lab support experience.",
+    experience: "Assisted with lab inventory, sample labeling, and research prep for faculty-led projects.",
+    skills: ["Lab support", "Attention to detail", "Inventory"],
+    interests: ["research", "specimen labeling", "student orgs"],
+  },
+  {
+    fullName: "Liam Patel",
+    major: "Mechanical Engineering",
+    graduationYear: 2027,
+    bio: "Engineering student who is comfortable with moving equipment and practical problem solving.",
+    experience: "Helped with lab equipment transport, set up project demos, and assisted with workshop inventory.",
+    skills: ["Tools", "Equipment handling", "Teamwork"],
+    interests: ["robotics", "workshops", "building"],
+  },
+  {
+    fullName: "Olivia Chen",
+    major: "Marketing",
+    graduationYear: 2026,
+    bio: "Marketing student with an eye for outreach, student engagement, and campus promotion.",
+    experience: "Created campus outreach plans, assisted with tabling events, and managed poster distribution.",
+    skills: ["Copywriting", "Promotion", "Social media"],
+    interests: ["branding", "campaigns", "student outreach"],
+  },
+  {
+    fullName: "Daniel Rivera",
+    major: "Architecture",
+    graduationYear: 2027,
+    bio: "Design-minded student who handles detailed work and organized site preparation well.",
+    experience: "Prepared presentation boards, modeled studio projects, and coordinated material checklists.",
+    skills: ["Drafting", "Model making", "Precision"],
+    interests: ["campus spaces", "design systems", "layout"],
+  },
+  {
+    fullName: "Priya Nair",
+    major: "Psychology",
+    graduationYear: 2026,
+    bio: "Empathetic student who works well with people and enjoys service-oriented roles.",
+    experience: "Supported student wellness outreach, participated in peer mentoring, and helped coordinate sign-ins.",
+    skills: ["Listening", "Organization", "Patience"],
+    interests: ["student support", "wellness", "community"],
+  },
+  {
+    fullName: "Jordan Williams",
+    major: "Electrical Engineering",
+    graduationYear: 2027,
+    bio: "Technical student comfortable with setup tasks and precise operational work.",
+    experience: "Assisted with lab setups, wired demo kits, and supported campus robotics practice sessions.",
+    skills: ["Wiring", "Diagnostics", "Precision"],
+    interests: ["circuit design", "robotics", "labs"],
+  },
+  {
+    fullName: "Hannah Brooks",
+    major: "English",
+    graduationYear: 2026,
+    bio: "Strong writer and editor who can handle communication-heavy tasks and careful review work.",
+    experience: "Edited student publications, proofread club newsletters, and supported event communications.",
+    skills: ["Editing", "Proofreading", "Writing"],
+    interests: ["publishing", "books", "campus media"],
+  },
+  {
+    fullName: "Marcus Lee",
+    major: "Economics",
+    graduationYear: 2027,
+    bio: "Analytical student who likes structured work and reliable support roles.",
+    experience: "Assisted with spreadsheet cleanups, tabulated survey results, and supported club finances.",
+    skills: ["Spreadsheets", "Analysis", "Reliability"],
+    interests: ["markets", "data", "planning"],
+  },
+  {
+    fullName: "Isabella Garcia",
+    major: "Nursing",
+    graduationYear: 2026,
+    bio: "Care-focused student used to calm, dependable, and organized work.",
+    experience: "Volunteered in health screening events, managed supplies, and supported student wellness fairs.",
+    skills: ["Care", "Organization", "Empathy"],
+    interests: ["health", "service", "community care"],
+  },
+  {
+    fullName: "Owen Murphy",
+    major: "Communications",
+    graduationYear: 2027,
+    bio: "Outgoing student who enjoys outreach, event visibility, and helping teams stay coordinated.",
+    experience: "Supported student radio promotions, helped with campus event coverage, and coordinated outreach lists.",
+    skills: ["Public speaking", "Outreach", "Coordination"],
+    interests: ["media", "events", "campus life"],
+  },
+  {
+    fullName: "Zara Ahmed",
+    major: "Sociology",
+    graduationYear: 2026,
+    bio: "Observant student who is thoughtful about group dynamics and people-centered work.",
+    experience: "Helped organize volunteer signups, supported student surveys, and worked on community outreach projects.",
+    skills: ["Research", "People skills", "Event support"],
+    interests: ["community", "policy", "social impact"],
+  },
+  {
+    fullName: "Evelyn Price",
+    major: "Art History",
+    graduationYear: 2027,
+    bio: "Culture-focused student who likes organized, detail-heavy, and presentation-oriented work.",
+    experience: "Assisted with exhibit prep, catalogued artwork records, and supported gallery walk events.",
+    skills: ["Cataloguing", "Presentation", "Attention to detail"],
+    interests: ["museums", "archives", "cultural spaces"],
+  },
+  {
+    fullName: "Caleb Johnson",
+    major: "Information Systems",
+    graduationYear: 2026,
+    bio: "Practical systems student who is comfortable with data cleanup and operational support.",
+    experience: "Maintained student records, cleaned spreadsheet data, and supported equipment checkout workflows.",
+    skills: ["Data entry", "Systems", "Troubleshooting"],
+    interests: ["databases", "workflow", "operations"],
+  },
+  {
+    fullName: "Mia Robinson",
+    major: "Public Health",
+    graduationYear: 2027,
+    bio: "Service-oriented student interested in outreach, accuracy, and dependable support tasks.",
+    experience: "Helped with campus health campaigns, managed volunteer check-ins, and organized event supplies.",
+    skills: ["Coordination", "Public outreach", "Accuracy"],
+    interests: ["wellness", "education", "service"],
+  },
+  {
+    fullName: "Adrian Scott",
+    major: "Finance",
+    graduationYear: 2026,
+    bio: "Structured student who performs well with recordkeeping and routine operational tasks.",
+    experience: "Maintained budget trackers, assisted with club reimbursements, and supported invoice organization.",
+    skills: ["Recordkeeping", "Organization", "Excel"],
+    interests: ["budgeting", "investing", "planning"],
+  },
+  {
+    fullName: "Leah Turner",
+    major: "Environmental Science",
+    graduationYear: 2027,
+    bio: "Outdoor-minded student who likes hands-on logistics and sustainability work.",
+    experience: "Supported campus garden upkeep, helped with recycling drives, and organized field equipment.",
+    skills: ["Field work", "Sorting", "Dependability"],
+    interests: ["sustainability", "gardens", "field research"],
+  },
+  {
+    fullName: "Noelle Adams",
+    major: "Political Science",
+    graduationYear: 2026,
+    bio: "Organized student interested in communication, outreach, and structured support work.",
+    experience: "Supported student advocacy events, managed petition tables, and coordinated mailing lists.",
+    skills: ["Coordination", "Writing", "Scheduling"],
+    interests: ["policy", "advocacy", "student government"],
+  },
+  {
+    fullName: "Henry Kim",
+    major: "Chemistry",
+    graduationYear: 2027,
+    bio: "Careful student who is comfortable with precise, inventory-heavy tasks.",
+    experience: "Managed lab stock counts, labeled reagents, and supported chemistry demo days.",
+    skills: ["Inventory", "Precision", "Lab safety"],
+    interests: ["experiments", "research", "equipment"],
+  },
+  {
+    fullName: "Camila Flores",
+    major: "Fashion Design",
+    graduationYear: 2026,
+    bio: "Creative student who enjoys visual presentation and hands-on event support.",
+    experience: "Styled student fashion showcases, prepared materials for design reviews, and supported pop-up events.",
+    skills: ["Styling", "Visual layout", "Organization"],
+    interests: ["fashion shows", "branding", "creative events"],
+  },
+  {
+    fullName: "Nathan Reed",
+    major: "Mathematics",
+    graduationYear: 2027,
+    bio: "Methodical student who likes clean processes and repeatable support work.",
+    experience: "Tutored peers, validated calculation sheets, and helped organize student assessment materials.",
+    skills: ["Logic", "Accuracy", "Problem solving"],
+    interests: ["puzzles", "analytics", "teaching"],
+  },
+  {
+    fullName: "Grace Wilson",
+    major: "Education",
+    graduationYear: 2026,
+    bio: "Supportive student who is patient, organized, and dependable in people-focused settings.",
+    experience: "Helped with tutoring center check-ins, sorted classroom materials, and supported campus family events.",
+    skills: ["Patience", "Organization", "Communication"],
+    interests: ["teaching", "children", "student support"],
+  },
+  {
+    fullName: "Theo Martinez",
+    major: "Data Science",
+    graduationYear: 2027,
+    bio: "Analytical student who likes structured tasks, data cleanup, and systems thinking.",
+    experience: "Prepared survey dashboards, cleaned duplicate records, and supported campus data reporting.",
+    skills: ["Python", "Data cleanup", "Analytics"],
+    interests: ["machine learning", "dashboards", "automation"],
+  },
+];
+
+async function main() {
+  await prisma.match.deleteMany();
+  await prisma.gig.deleteMany();
+  await prisma.student.deleteMany();
+
+  await prisma.student.createMany({
+    data: seedStudents,
+  });
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

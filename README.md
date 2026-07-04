@@ -23,7 +23,22 @@ CampusGigs is a micro-job matching simulator for campus managers and student wor
    - Frontend: `apps/web/.env.example`
    - Backend: `apps/api/.env.example`
 
-3. Start the development servers.
+   Set `DATABASE_URL` in `apps/api/.env` to your Supabase PostgreSQL connection string.
+
+3. Generate Prisma artifacts and seed the database.
+
+   ```bash
+   npm run prisma:generate --workspace @campusgigs/api
+   npm run prisma:seed --workspace @campusgigs/api
+   ```
+
+   If you are creating the schema locally, run:
+
+   ```bash
+   npm run prisma:migrate:dev --workspace @campusgigs/api
+   ```
+
+4. Start the development servers.
 
    ```bash
    npm run dev --workspace @campusgigs/web
@@ -32,7 +47,7 @@ CampusGigs is a micro-job matching simulator for campus managers and student wor
 
    The frontend runs on `http://localhost:3000` and the backend runs on `http://localhost:4000`.
 
-4. Build the workspace when you want a production check.
+5. Build the workspace when you want a production check.
 
    ```bash
    npm run build --workspaces --if-present
