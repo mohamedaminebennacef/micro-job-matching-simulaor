@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { Prisma, PrismaClient, Match as PrismaMatch, Student as PrismaStudent } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service.js";
 
@@ -12,7 +12,7 @@ type MatchSeedInput = {
 
 @Injectable()
 export class MatchesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async createManyForGig(
     client: PrismaLikeClient,

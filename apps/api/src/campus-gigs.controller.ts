@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Inject,
   Param,
   ParseUUIDPipe,
   Post,
@@ -16,12 +17,12 @@ import {
 } from "@nestjs/swagger";
 import { AssignGigDto } from "./dto/assign-gig.dto.js";
 import { CreateGigDto } from "./dto/create-gig.dto.js";
-import { CampusGigsService } from "./campus-gigs.service.js";
+import { GigsService } from "./gigs/gigs.service.js";
 
 @ApiTags("CampusGigs")
 @Controller()
 export class CampusGigsController {
-  constructor(private readonly campusGigsService: CampusGigsService) {}
+  constructor(@Inject(GigsService) private readonly gigsService: GigsService) {}
 
   @Get("health")
   @ApiOperation({ summary: "Health check" })
@@ -35,7 +36,7 @@ export class CampusGigsController {
   @ApiBody({ type: CreateGigDto })
   @ApiResponse({ status: 201, description: "Gig created with ranked candidates." })
   createGig(@Body() createGigDto: CreateGigDto) {
-    return this.campusGigsService.createGig(createGigDto);
+    return this.gigsService.createGig(createGigDto);
   }
 
   @Get("gigs/:id")
@@ -43,7 +44,7 @@ export class CampusGigsController {
   @ApiParam({ name: "id", description: "Gig UUID" })
   @ApiResponse({ status: 200, description: "Gig record returned." })
   getGig(@Param("id", new ParseUUIDPipe()) id: string) {
-    return this.campusGigsService.getGig(id);
+    return this.gigsService.getGig(id);
   }
 
   @Post("gigs/:id/assign")
@@ -56,6 +57,6 @@ export class CampusGigsController {
     @Param("id", new ParseUUIDPipe()) id: string,
     @Body() assignGigDto: AssignGigDto,
   ) {
-    return this.campusGigsService.assignGig(id, assignGigDto);
+    return this.gigsService.assignGig(id, assignGigDto);
   }
 }

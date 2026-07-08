@@ -35,7 +35,6 @@ type GigResult = {
   selectedCandidate?: CandidateScore;
 };
 
-/* ─── Fallback simulation data ───────────────────────────── */
 const emptyGig: GigInput = {
   title: "",
   description: "",
@@ -43,34 +42,6 @@ const emptyGig: GigInput = {
   durationHours: 2,
   hourlyRate: 18,
 };
-
-const fallbackCandidates: CandidateScore[] = [
-  {
-    student: { id: "l1", name: "Maya Thompson", major: "History", skills: ["Archiving", "Organization"], interests: ["libraries", "campus history"] },
-    matchPercent: 95,
-    justification: "Strong archival background and a history major make this a natural fit.",
-  },
-  {
-    student: { id: "l2", name: "Amina Hassan", major: "Business Administration", skills: ["Scheduling", "Logistics"], interests: ["operations", "people"] },
-    matchPercent: 82,
-    justification: "Reliable logistics and organization skills fit most campus support work.",
-  },
-  {
-    student: { id: "l3", name: "Sofia Alvarez", major: "Biology", skills: ["Lab support", "Attention to detail"], interests: ["research", "inventory"] },
-    matchPercent: 74,
-    justification: "Detail-oriented work and lab support experience transfer well to odd jobs.",
-  },
-  {
-    student: { id: "l4", name: "Noah Kim", major: "Design", skills: ["Canva", "Flyer layout"], interests: ["marketing", "branding"] },
-    matchPercent: 58,
-    justification: "A solid option when the job needs communication or visual polish.",
-  },
-  {
-    student: { id: "l5", name: "Ethan Park", major: "Computer Science", skills: ["React", "Debugging"], interests: ["automation", "hackathons"] },
-    matchPercent: 40,
-    justification: "Technically strong, but the profile is less aligned with hands-on campus errands.",
-  },
-];
 
 /* ─── Helpers ────────────────────────────────────────────── */
 const AVATAR_GRADIENTS = [
@@ -305,8 +276,8 @@ export default function Home() {
         if (!res.ok) throw new Error("Backend request failed");
         setResult((await res.json()) as GigResult);
       } catch {
-        setResult({ id: "local-simulation", status: "Open", gig: form, candidates: fallbackCandidates });
-        setError("Running in local simulation mode — the API is not reachable yet.");
+        setResult(null);
+        setError("Could not save the gig. Make sure the API is running and the database is connected.");
       }
     });
   }

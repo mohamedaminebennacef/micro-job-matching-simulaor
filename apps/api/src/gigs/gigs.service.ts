@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type {
   Gig as PrismaGig,
   Match as PrismaMatch,
@@ -26,9 +31,10 @@ type GigWithRelations = PrismaGig & {
 @Injectable()
 export class GigsService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly studentsService: StudentsService,
-    private readonly matchesService: MatchesService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(StudentsService) private readonly studentsService: StudentsService,
+    @Inject(MatchesService) private readonly matchesService: MatchesService,
+    @Inject(MatchScoringService)
     private readonly matchScoringService: MatchScoringService,
   ) {}
 
