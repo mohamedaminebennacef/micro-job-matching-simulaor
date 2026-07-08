@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
-const sansFont = Inter({
+const sans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
-  title: "CampusGigs",
+  title: "CampusGigs — Micro-Job Matching Simulator",
   description:
-    "Micro-job matching simulator for campus employers and student workers.",
+    "Instantly match campus odd-jobs with available student workers using AI-powered compatibility scoring.",
 };
 
 export default function RootLayout({
@@ -20,9 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${sansFont.variable} bg-[var(--page-bg)] text-[var(--page-fg)] antialiased`}
-      >
+      <body className={`${sans.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

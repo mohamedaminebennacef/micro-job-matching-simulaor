@@ -1,35 +1,118 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
-  --page-bg: #ffffff;
-  --page-fg: #1f2937;
-  --panel: #ffffff;
-  --panel-strong: #ffffff;
-  --border: rgba(15, 23, 42, 0.12);
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.08);
-  --muted: #6b7280;
+@layer base {
+  :root {
+    /* shadcn/ui tokens — premium light theme with solid grey background and white cards */
+    --background: #f3f5f8;                 /* Solid soft grey background */
+    --foreground: #0f172a;                 /* Slate-900 text */
+    --card: #ffffff;                       /* Pure white card */
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: lab(23.4355% 21.6567 -46.4713); /* User's custom main color */
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;                  /* slate-100 */
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;           /* slate-500 */
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;                     /* Soft slate-200 border */
+    --input: #e2e8f0;
+    --ring: rgba(30, 41, 59, 0.3);
+    --radius: 0.85rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+    background: #f3f5f8;
+  }
+
+  ::selection {
+    background: rgba(30, 41, 59, 0.2);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: var(--font-sans), sans-serif;
-  background: #ffffff;
-  color: var(--page-fg);
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-* {
-  box-sizing: border-box;
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-::selection {
-  background: rgba(37, 99, 235, 0.18);
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.animate-fade-up   { animation: fade-up  0.4s ease both; }
+.animate-fade-in   { animation: fade-in  0.3s ease both; }
+.animate-scale-in  { animation: scale-in 0.35s ease both; }
+
+.animate-fade-up:nth-child(1)  { animation-delay: 0ms;   }
+.animate-fade-up:nth-child(2)  { animation-delay: 60ms;  }
+.animate-fade-up:nth-child(3)  { animation-delay: 120ms; }
+.animate-fade-up:nth-child(4)  { animation-delay: 180ms; }
+.animate-fade-up:nth-child(5)  { animation-delay: 240ms; }
+
+/* Glow ring for top candidate */
+.glow-card {
+  box-shadow: 0 0 0 1.5px lab(23.4355% 21.6567 -46.4713),
+              0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Glass panel styled appropriately for light mode cards */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Gradient text using deep blue to cool aqua tones */
+.gradient-text {
+  background: linear-gradient(135deg, lab(23.4355% 21.6567 -46.4713), #4f46e5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Score bar track */
+.score-bar-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, lab(23.4355% 21.6567 -46.4713), #4f46e5);
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
