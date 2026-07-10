@@ -13,8 +13,8 @@ import type {
 } from "@prisma/client";
 import { AssignGigDto } from "../dto/assign-gig.dto.js";
 import { CreateGigDto } from "../dto/create-gig.dto.js";
+import { AiMatchingService } from "../ai/ai-matching.service.js";
 import { MatchesService } from "../matches/matches.service.js";
-import { MatchScoringService } from "../matches/match-scoring.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { StudentsService } from "../students/students.service.js";
 import type { GigCandidate, GigResponse, GigStatus } from "./gig.types.js";
@@ -34,8 +34,8 @@ export class GigsService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(StudentsService) private readonly studentsService: StudentsService,
     @Inject(MatchesService) private readonly matchesService: MatchesService,
-    @Inject(MatchScoringService)
-    private readonly matchScoringService: MatchScoringService,
+    @Inject(AiMatchingService)
+    private readonly aiMatchingService: AiMatchingService,
   ) {}
 
   async createGig(createGigDto: CreateGigDto): Promise<GigResponse> {
@@ -52,9 +52,8 @@ export class GigsService {
       });
 
       const students = await this.studentsService.findAll(transaction);
-      const scoredCandidates: GigCandidate[] = students
-        .map((student) => this.matchScoringService.scoreCandidate(createGigDto, student))
-        .sort((left, right) => right.matchPercent - left.matchPercent);
+      const scoredCandidates: GigCandidate[] =
+        await this.aiMatchingService.findMatches(createGigDto, students);
 
       await this.matchesService.createManyForGig(
         transaction,
