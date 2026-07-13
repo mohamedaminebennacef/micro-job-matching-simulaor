@@ -469,15 +469,41 @@ export default function Home() {
             <CardContent className="px-8 pb-8">
               {result ? (
                 <div className="space-y-4">
+                  {/* Low alignment warning */}
+                  {lowAlignment && (
+                    <div id="low-alignment-banner" className="animate-fade-in rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-xs leading-relaxed text-rose-800">
+                      <span className="font-bold">⚠ Low candidate alignment detected.</span> None of the available students closely match this job's requirements. Consider broadening the role description or posting to a wider talent pool.
+                    </div>
+                  )}
+
                   {/* Tie notice */}
-                  {tiedLeaders.length > 1 && (
+                  {!lowAlignment && tiedLeaders.length > 1 && (
                     <div id="tie-notice" className="animate-fade-in rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-xs leading-relaxed text-amber-800">
                       <span className="font-bold">Tie at the top!</span> Both leaders scored {topScore}% — pick manually below.
                     </div>
                   )}
 
-                  {/* Best match spotlight */}
-                  {tiedLeaders.length <= 1 && result.candidates[0] && (
+                  {/* Tied leaders — side by side */}
+                  {!lowAlignment && tiedLeaders.length > 1 && (
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                      {tiedLeaders.map((candidate, i) => (
+                        <CandidateCard
+                          key={candidate.student.id}
+                          candidate={candidate}
+                          rank={i}
+                          isBest={false}
+                          isTied={true}
+                          isAssigned={result.assignedStudentId === candidate.student.id}
+                          isPending={isPending}
+                          isGigAssigned={result.status === "Assigned"}
+                          onAssign={assignGig}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Best match spotlight (single leader) */}
+                  {!lowAlignment && tiedLeaders.length <= 1 && result.candidates[0] && (
                     <div className="animate-scale-in mb-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-indigo-50/10 to-white p-6 shadow-[0_4px_22px_rgba(20,20,30,0.04)]">
                       <div className="mb-4 flex items-center gap-2">
                         <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">★ Best Match</span>
@@ -500,14 +526,16 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* Top 5 candidates */}
-                  {topCandidates.map((candidate, index) => (
+                  {/* Remaining candidates (skip tied leaders when tie is active) */}
+                  {topCandidates
+                    .filter((c) => lowAlignment || !(tiedLeaders.length > 1 && c.matchPercent === topScore))
+                    .map((candidate, index) => (
                     <CandidateCard
                       key={candidate.student.id}
                       candidate={candidate}
-                      rank={index}
-                      isBest={index === 0}
-                      isTied={tiedLeaders.length > 1 && candidate.matchPercent === topScore}
+                      rank={lowAlignment ? index : (tiedLeaders.length > 1 ? tiedLeaders.length + index : index)}
+                      isBest={false}
+                      isTied={false}
                       isAssigned={result.assignedStudentId === candidate.student.id}
                       isPending={isPending}
                       isGigAssigned={result.status === "Assigned"}
