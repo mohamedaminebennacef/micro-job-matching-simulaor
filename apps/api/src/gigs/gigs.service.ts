@@ -39,35 +39,33 @@ export class GigsService {
   ) {}
 
   async createGig(createGigDto: CreateGigDto): Promise<GigResponse> {
-    return this.prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
-      const gig = await transaction.gig.create({
-        data: {
-          title: createGigDto.title,
-          description: createGigDto.description,
-          location: createGigDto.location,
-          durationHours: createGigDto.durationHours,
-          hourlyRate: createGigDto.hourlyRate,
-          status: "OPEN",
-        },
-      });
-
-      const students = await this.studentsService.findAll(transaction);
-      const scoredCandidates: GigCandidate[] =
-        await this.aiMatchingService.findMatches(createGigDto, students);
-
-      await this.matchesService.createManyForGig(
-        transaction,
-        gig.id,
-        scoredCandidates.map((candidate) => ({
-          studentId: candidate.student.id,
-          score: candidate.matchPercent,
-          reason: candidate.justification,
-        })),
-      );
-
-      const persistedGig = await this.loadGigWithRelations(transaction, gig.id);
-      return this.toGigResponse(persistedGig);
+    const gig = await this.prisma.gig.create({
+      data: {
+        title: createGigDto.title,
+        description: createGigDto.description,
+        location: createGigDto.location,
+        durationHours: createGigDto.durationHours,
+        hourlyRate: createGigDto.hourlyRate,
+        status: "OPEN",
+      },
     });
+
+    const students = await this.studentsService.findAll();
+    const scoredCandidates: GigCandidate[] =
+      await this.aiMatchingService.findMatches(createGigDto, students);
+
+    await this.matchesService.createManyForGig(
+      this.prisma,
+      gig.id,
+      scoredCandidates.map((candidate) => ({
+        studentId: candidate.student.id,
+        score: candidate.matchPercent,
+        reason: candidate.justification,
+      })),
+    );
+
+    const persistedGig = await this.loadGigWithRelations(this.prisma, gig.id);
+    return this.toGigResponse(persistedGig);
   }
 
   async getGig(id: string): Promise<GigResponse> {

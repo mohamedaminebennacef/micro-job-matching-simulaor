@@ -313,7 +313,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground animate-fade-in">
-      <main className="relative mx-auto max-w-6xl px-6 py-16 lg:px-10">
+      <main className="relative mx-auto max-w-7xl px-6 py-16 lg:px-10">
 
         {/* ── Header ── */}
         <header className="mb-14">
@@ -334,7 +334,7 @@ export default function Home() {
         <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start">
 
           {/* ── LEFT: Gig Form ── */}
-          <Card className="border-slate-200 bg-white shadow-xl">
+          <Card className="border-gray-200 bg-white shadow-md">
             <CardHeader className="px-8 pb-0 pt-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -444,7 +444,7 @@ export default function Home() {
           </Card>
 
           {/* ── RIGHT: Leaderboard ── */}
-          <Card className="border-slate-200 bg-white shadow-xl">
+          <Card className="border-gray-200 bg-white shadow-md">
             <CardHeader className="px-8 pb-0 pt-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
