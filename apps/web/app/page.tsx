@@ -148,7 +148,7 @@ function CandidateCard({
       className={`
         animate-fade-up relative overflow-hidden rounded-2xl border p-5 transition-all duration-300
         ${isBest && !isTied
-          ? "border-primary/20 bg-gradient-to-br from-primary/5 via-indigo-50/10 to-transparent shadow-[0_4px_22px_rgba(20,20,30,0.04)]"
+          ? "border-gray-200 bg-gradient-to-br from-primary/5 via-indigo-50/10 to-transparent shadow-[0_4px_22px_rgba(20,20,30,0.04)]"
           : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-slate-50"}
         ${isAssigned ? "border-emerald-200 bg-emerald-50/30" : ""}
       `}
@@ -251,13 +251,10 @@ export default function Home() {
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
 
-  const topScore = result?.candidates[0]?.matchPercent ?? 0;
-  const tiedLeaders = useMemo(() => {
-    if (!result?.candidates.length) return [] as CandidateScore[];
-    return result.candidates.filter((c) => c.matchPercent === topScore);
-  }, [result, topScore]);
-
-  const lowAlignment = result ? result.candidates.every((c) => c.matchPercent < 30) : false;
+  const topCandidates = useMemo(() => result?.candidates.slice(0, 5) ?? [], [result]);
+  const topScore = topCandidates[0]?.matchPercent ?? 0;
+  const tiedLeaders = useMemo(() => topCandidates.filter((c) => c.matchPercent === topScore), [topCandidates, topScore]);
+  const lowAlignment = topCandidates.length > 0 && topCandidates.every((c) => c.matchPercent < 30);
 
   function handleChange(field: keyof GigInput, value: string | number) {
     setForm((cur) => ({ ...cur, [field]: value }));
@@ -313,7 +310,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground animate-fade-in">
-      <main className="relative mx-auto max-w-7xl px-6 py-16 lg:px-10">
+      <main className="relative mx-auto max-w-[90rem] px-6 py-16 lg:px-10">
 
         {/* ── Header ── */}
         <header className="mb-14">
@@ -454,6 +451,9 @@ export default function Home() {
                   <h2 className="text-xl font-bold text-slate-900">Candidate Leaderboard</h2>
                   <p className="mt-1.5 text-sm text-slate-500">
                     Ranked from highest to lowest match percentage.
+                    {result && result.candidates.length > 5 && (
+                      <span className="ml-1 text-slate-400">Showing top 5 of {result.candidates.length}.</span>
+                    )}
                   </p>
                 </div>
                 {lowAlignment && result && (
@@ -478,7 +478,7 @@ export default function Home() {
 
                   {/* Best match spotlight */}
                   {tiedLeaders.length <= 1 && result.candidates[0] && (
-                    <div className="animate-scale-in mb-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-indigo-50/10 to-white p-6 shadow-[0_4px_22px_rgba(20,20,30,0.04)]">
+                    <div className="animate-scale-in mb-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-indigo-50/10 to-white p-6 shadow-[0_4px_22px_rgba(20,20,30,0.04)]">
                       <div className="mb-4 flex items-center gap-2">
                         <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">★ Best Match</span>
                         <div className="h-px flex-1 bg-primary/10" />
@@ -500,8 +500,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* All candidates */}
-                  {result.candidates.map((candidate, index) => (
+                  {/* Top 5 candidates */}
+                  {topCandidates.map((candidate, index) => (
                     <CandidateCard
                       key={candidate.student.id}
                       candidate={candidate}
