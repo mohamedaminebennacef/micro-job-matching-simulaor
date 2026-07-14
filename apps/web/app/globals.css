@@ -23,6 +23,8 @@
     --accent-foreground: #0f172a;
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
+    --success: #10b981;
+    --success-foreground: #ffffff;
     --border: #e2e8f0;                     /* Soft slate-200 border */
     --input: #e2e8f0;
     --ring: rgba(30, 41, 59, 0.3);

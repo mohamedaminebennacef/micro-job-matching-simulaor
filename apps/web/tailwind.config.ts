@@ -11,6 +11,14 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", "sans-serif"],
+        display: ["var(--font-sans)", "sans-serif"],
+      },
+      boxShadow: {
+        paper: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        lift: "0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)",
+      },
+      backgroundImage: {
+        "gradient-warm": "linear-gradient(135deg, var(--accent), var(--primary))",
       },
       borderRadius: {
         lg: "var(--radius)",

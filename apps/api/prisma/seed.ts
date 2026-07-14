@@ -14,6 +14,15 @@ const seedStudents = [
     interests: ["libraries", "archives", "campus history"],
   },
   {
+    fullName: "Maya Thompson",
+    major: "History",
+    graduationYear: 2026,
+    bio: "Archivist-minded student who enjoys preserving campus records and helping with museum exhibits.",
+    experience: "Worked in the university archive, catalogued donor materials, and supported oral history events.",
+    skills: ["Archiving", "Organization", "Document care"],
+    interests: ["libraries", "archives", "campus history"],
+  },
+  {
     fullName: "Ethan Park",
     major: "Computer Science",
     graduationYear: 2027,
