@@ -7,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import {
   ApiBody,
@@ -18,17 +19,31 @@ import {
 import { AssignGigDto } from "./dto/assign-gig.dto.js";
 import { CreateGigDto } from "./dto/create-gig.dto.js";
 import { GigsService } from "./gigs/gigs.service.js";
+import { PrismaService } from "./prisma/prisma.service.js";
 
 @ApiTags("CampusGigs")
 @Controller()
 export class CampusGigsController {
-  constructor(@Inject(GigsService) private readonly gigsService: GigsService) {}
+  constructor(
+    @Inject(GigsService) private readonly gigsService: GigsService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+  ) {}
 
   @Get("health")
   @ApiOperation({ summary: "Health check" })
   @ApiResponse({ status: 200, description: "Service is running." })
-  healthCheck() {
-    return { ok: true, service: "campusgigs-api" };
+  @ApiResponse({ status: 503, description: "Database unreachable." })
+  async healthCheck() {
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      return { ok: true, service: "campusgigs-api", db: "connected" };
+    } catch {
+      throw new ServiceUnavailableException({
+        ok: false,
+        service: "campusgigs-api",
+        db: "disconnected",
+      });
+    }
   }
 
   @Post("gigs")

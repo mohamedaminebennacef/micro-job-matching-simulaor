@@ -339,7 +339,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const apiBaseUrl = "http://localhost:4000";
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
 
   const topCandidates = useMemo(
     () => result?.candidates.slice(0, 5) ?? [],
@@ -779,7 +779,7 @@ export default function Home() {
                             <div className="relative mt-5 flex justify-end">
                               <Button
                                 type="button"
-                                onClick={() => assignGig(result.candidates[0].student.id)}
+                                onClick={() => result.candidates[0] && assignGig(result.candidates[0].student.id)}
                                 disabled={isPending}
                                 className="h-9 rounded-lg bg-white px-4 text-xs font-semibold text-neutral-900 hover:bg-white/90"
                               >

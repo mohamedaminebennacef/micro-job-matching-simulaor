@@ -7,7 +7,12 @@ import { SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+      methods: ["GET", "POST"],
+    },
+  });
   app.setGlobalPrefix("api");
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,7 +30,7 @@ async function bootstrap() {
         "CampusGigs micro-job matching simulator API with gig creation, retrieval, assignment, and health check endpoints.",
       version: "1.0.0",
     },
-    servers: [{ url: "http://localhost:4000" }],
+    servers: [{ url: process.env.CORS_ORIGIN ?? "http://localhost:4000" }],
     tags: [{ name: "CampusGigs" }],
     paths: {
       "/api/health": {
