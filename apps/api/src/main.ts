@@ -7,13 +7,15 @@ import { SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module.js";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
-      methods: ["GET", "POST"],
-    },
-  });
-  app.setGlobalPrefix("api");
+  try {
+    console.log("[startup] BOOT: bootstrap() called");
+    const app = await NestFactory.create(AppModule, {
+      cors: {
+        origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+        methods: ["GET", "POST"],
+      },
+    });
+    app.setGlobalPrefix("api");
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -230,7 +232,22 @@ async function bootstrap() {
   });
 
   const port = Number(process.env.PORT ?? 4000);
+  console.log(`[startup] BOOT: listening on port ${port}`);
   await app.listen(port);
+  console.log(`[startup] BOOT: listening complete`);
+  } catch (err) {
+    console.error("[startup] BOOT FAILED:", err);
+    process.exit(1);
+  }
 }
+
+process.on("uncaughtException", (err) => {
+  console.error("[startup] UNCAUGHT EXCEPTION:", err);
+  process.exit(1);
+});
+process.on("unhandledRejection", (err) => {
+  console.error("[startup] UNHANDLED REJECTION:", err);
+  process.exit(1);
+});
 
 bootstrap();

@@ -45,7 +45,7 @@ Vercel (Frontend)  ──>  Render (Backend API)  ──>  Supabase (PostgreSQL)
      ```
    - **Start Command:**
      ```
-     npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma && node apps/api/dist/main.js
+     npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma; node apps/api/dist/main.js
      ```
    - **Plan:** Free
 
