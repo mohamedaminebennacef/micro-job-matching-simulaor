@@ -45,8 +45,9 @@ Vercel (Frontend)  ──>  Render (Backend API)  ──>  Supabase (PostgreSQL)
      ```
    - **Start Command:**
      ```
-     npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma; node apps/api/dist/main.js
+     node apps/api/dist/main.js
      ```
+   - **Note:** `prisma migrate deploy` is excluded from the start command because it hangs on Render's free tier (Supabase pooler connection). The DB schema should already exist from development (`prisma db push`). To run migrations manually later, use Render Shell: `npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma`
    - **Plan:** Free
 
 ### Environment Variables
