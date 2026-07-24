@@ -1,0 +1,12 @@
+export { BackgroundShapes } from "./background-shapes";
+export { Navbar } from "./navbar";
+export { Hero } from "./hero";
+export { LogoStrip } from "./logo-strip";
+export { WhatIs } from "./what-is";
+export { HowItWorks } from "./how-it-works";
+export { Features } from "./features";
+export { WhyCampusGigs } from "./why-campus-gigs";
+export { Screenshots } from "./screenshots";
+export { TechStack } from "./tech-stack";
+export { CTA } from "./cta";
+export { Footer } from "./footer";
