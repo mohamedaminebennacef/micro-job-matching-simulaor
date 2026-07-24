@@ -1,7 +1,10 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
+
+const demoPassword = "password123";
 
 const seedStudents = [
   {
@@ -12,15 +15,8 @@ const seedStudents = [
     experience: "Worked in the university archive, catalogued donor materials, and supported oral history events.",
     skills: ["Archiving", "Organization", "Document care"],
     interests: ["libraries", "archives", "campus history"],
-  },
-  {
-    fullName: "Maya Thompson",
-    major: "History",
-    graduationYear: 2026,
-    bio: "Archivist-minded student who enjoys preserving campus records and helping with museum exhibits.",
-    experience: "Worked in the university archive, catalogued donor materials, and supported oral history events.",
-    skills: ["Archiving", "Organization", "Document care"],
-    interests: ["libraries", "archives", "campus history"],
+    availability: "Weekdays 9am-5pm",
+    preferredWorkTypes: ["Archive work", "Event support"],
   },
   {
     fullName: "Ethan Park",
@@ -30,6 +26,8 @@ const seedStudents = [
     experience: "Built campus workflow scripts, helped classmates debug web apps, and supported hackathon operations.",
     skills: ["Python", "React", "Debugging"],
     interests: ["automation", "hackathons", "productivity"],
+    availability: "Evenings and weekends",
+    preferredWorkTypes: ["Tech support", "Web development"],
   },
   {
     fullName: "Amina Hassan",
@@ -39,6 +37,8 @@ const seedStudents = [
     experience: "Coordinated event staffing, managed volunteer schedules, and supported student organization budgets.",
     skills: ["Scheduling", "Logistics", "Communication"],
     interests: ["event planning", "operations", "people"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Event planning", "Operations"],
   },
   {
     fullName: "Noah Kim",
@@ -48,6 +48,8 @@ const seedStudents = [
     experience: "Designed flyers for student clubs, created presentation templates, and supported branding for events.",
     skills: ["Canva", "Flyer layout", "Typography"],
     interests: ["posters", "branding", "campus marketing"],
+    availability: "Afternoons",
+    preferredWorkTypes: ["Design", "Marketing"],
   },
   {
     fullName: "Sofia Alvarez",
@@ -57,6 +59,8 @@ const seedStudents = [
     experience: "Assisted with lab inventory, sample labeling, and research prep for faculty-led projects.",
     skills: ["Lab support", "Attention to detail", "Inventory"],
     interests: ["research", "specimen labeling", "student orgs"],
+    availability: "Weekday mornings",
+    preferredWorkTypes: ["Lab work", "Research"],
   },
   {
     fullName: "Liam Patel",
@@ -66,6 +70,8 @@ const seedStudents = [
     experience: "Helped with lab equipment transport, set up project demos, and assisted with workshop inventory.",
     skills: ["Tools", "Equipment handling", "Teamwork"],
     interests: ["robotics", "workshops", "building"],
+    availability: "Weekends",
+    preferredWorkTypes: ["Manual labor", "Equipment setup"],
   },
   {
     fullName: "Olivia Chen",
@@ -75,6 +81,8 @@ const seedStudents = [
     experience: "Created campus outreach plans, assisted with tabling events, and managed poster distribution.",
     skills: ["Copywriting", "Promotion", "Social media"],
     interests: ["branding", "campaigns", "student outreach"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Marketing", "Promotion"],
   },
   {
     fullName: "Daniel Rivera",
@@ -84,6 +92,8 @@ const seedStudents = [
     experience: "Prepared presentation boards, modeled studio projects, and coordinated material checklists.",
     skills: ["Drafting", "Model making", "Precision"],
     interests: ["campus spaces", "design systems", "layout"],
+    availability: "Afternoons",
+    preferredWorkTypes: ["Design", "Organization"],
   },
   {
     fullName: "Priya Nair",
@@ -93,6 +103,8 @@ const seedStudents = [
     experience: "Supported student wellness outreach, participated in peer mentoring, and helped coordinate sign-ins.",
     skills: ["Listening", "Organization", "Patience"],
     interests: ["student support", "wellness", "community"],
+    availability: "Weekdays",
+    preferredWorkTypes: ["Mentoring", "Support services"],
   },
   {
     fullName: "Jordan Williams",
@@ -102,6 +114,8 @@ const seedStudents = [
     experience: "Assisted with lab setups, wired demo kits, and supported campus robotics practice sessions.",
     skills: ["Wiring", "Diagnostics", "Precision"],
     interests: ["circuit design", "robotics", "labs"],
+    availability: "Evenings",
+    preferredWorkTypes: ["Tech setup", "Lab work"],
   },
   {
     fullName: "Hannah Brooks",
@@ -111,6 +125,8 @@ const seedStudents = [
     experience: "Edited student publications, proofread club newsletters, and supported event communications.",
     skills: ["Editing", "Proofreading", "Writing"],
     interests: ["publishing", "books", "campus media"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Writing", "Editing"],
   },
   {
     fullName: "Marcus Lee",
@@ -120,6 +136,8 @@ const seedStudents = [
     experience: "Assisted with spreadsheet cleanups, tabulated survey results, and supported club finances.",
     skills: ["Spreadsheets", "Analysis", "Reliability"],
     interests: ["markets", "data", "planning"],
+    availability: "Weekday afternoons",
+    preferredWorkTypes: ["Data entry", "Analysis"],
   },
   {
     fullName: "Isabella Garcia",
@@ -129,6 +147,8 @@ const seedStudents = [
     experience: "Volunteered in health screening events, managed supplies, and supported student wellness fairs.",
     skills: ["Care", "Organization", "Empathy"],
     interests: ["health", "service", "community care"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Health services", "Event support"],
   },
   {
     fullName: "Owen Murphy",
@@ -138,6 +158,8 @@ const seedStudents = [
     experience: "Supported student radio promotions, helped with campus event coverage, and coordinated outreach lists.",
     skills: ["Public speaking", "Outreach", "Coordination"],
     interests: ["media", "events", "campus life"],
+    availability: "Evenings",
+    preferredWorkTypes: ["Promotion", "Event coverage"],
   },
   {
     fullName: "Zara Ahmed",
@@ -147,6 +169,8 @@ const seedStudents = [
     experience: "Helped organize volunteer signups, supported student surveys, and worked on community outreach projects.",
     skills: ["Research", "People skills", "Event support"],
     interests: ["community", "policy", "social impact"],
+    availability: "Weekends",
+    preferredWorkTypes: ["Research", "Community outreach"],
   },
   {
     fullName: "Evelyn Price",
@@ -156,6 +180,8 @@ const seedStudents = [
     experience: "Assisted with exhibit prep, catalogued artwork records, and supported gallery walk events.",
     skills: ["Cataloguing", "Presentation", "Attention to detail"],
     interests: ["museums", "archives", "cultural spaces"],
+    availability: "Afternoons",
+    preferredWorkTypes: ["Archive work", "Event support"],
   },
   {
     fullName: "Caleb Johnson",
@@ -165,6 +191,8 @@ const seedStudents = [
     experience: "Maintained student records, cleaned spreadsheet data, and supported equipment checkout workflows.",
     skills: ["Data entry", "Systems", "Troubleshooting"],
     interests: ["databases", "workflow", "operations"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Data entry", "Systems support"],
   },
   {
     fullName: "Mia Robinson",
@@ -174,6 +202,8 @@ const seedStudents = [
     experience: "Helped with campus health campaigns, managed volunteer check-ins, and organized event supplies.",
     skills: ["Coordination", "Public outreach", "Accuracy"],
     interests: ["wellness", "education", "service"],
+    availability: "Weekday mornings",
+    preferredWorkTypes: ["Health services", "Event support"],
   },
   {
     fullName: "Adrian Scott",
@@ -183,6 +213,8 @@ const seedStudents = [
     experience: "Maintained budget trackers, assisted with club reimbursements, and supported invoice organization.",
     skills: ["Recordkeeping", "Organization", "Excel"],
     interests: ["budgeting", "investing", "planning"],
+    availability: "Weekday afternoons",
+    preferredWorkTypes: ["Data entry", "Operations"],
   },
   {
     fullName: "Leah Turner",
@@ -192,6 +224,8 @@ const seedStudents = [
     experience: "Supported campus garden upkeep, helped with recycling drives, and organized field equipment.",
     skills: ["Field work", "Sorting", "Dependability"],
     interests: ["sustainability", "gardens", "field research"],
+    availability: "Weekends",
+    preferredWorkTypes: ["Field work", "Sustainability"],
   },
   {
     fullName: "Noelle Adams",
@@ -201,6 +235,8 @@ const seedStudents = [
     experience: "Supported student advocacy events, managed petition tables, and coordinated mailing lists.",
     skills: ["Coordination", "Writing", "Scheduling"],
     interests: ["policy", "advocacy", "student government"],
+    availability: "Flexible",
+    preferredWorkTypes: ["Writing", "Event support"],
   },
   {
     fullName: "Henry Kim",
@@ -210,6 +246,8 @@ const seedStudents = [
     experience: "Managed lab stock counts, labeled reagents, and supported chemistry demo days.",
     skills: ["Inventory", "Precision", "Lab safety"],
     interests: ["experiments", "research", "equipment"],
+    availability: "Weekday mornings",
+    preferredWorkTypes: ["Lab work", "Inventory"],
   },
   {
     fullName: "Camila Flores",
@@ -219,6 +257,8 @@ const seedStudents = [
     experience: "Styled student fashion showcases, prepared materials for design reviews, and supported pop-up events.",
     skills: ["Styling", "Visual layout", "Organization"],
     interests: ["fashion shows", "branding", "creative events"],
+    availability: "Evenings",
+    preferredWorkTypes: ["Design", "Event support"],
   },
   {
     fullName: "Nathan Reed",
@@ -228,6 +268,8 @@ const seedStudents = [
     experience: "Tutored peers, validated calculation sheets, and helped organize student assessment materials.",
     skills: ["Logic", "Accuracy", "Problem solving"],
     interests: ["puzzles", "analytics", "teaching"],
+    availability: "Afternoons",
+    preferredWorkTypes: ["Tutoring", "Data analysis"],
   },
   {
     fullName: "Grace Wilson",
@@ -237,6 +279,8 @@ const seedStudents = [
     experience: "Helped with tutoring center check-ins, sorted classroom materials, and supported campus family events.",
     skills: ["Patience", "Organization", "Communication"],
     interests: ["teaching", "children", "student support"],
+    availability: "Weekday mornings",
+    preferredWorkTypes: ["Tutoring", "Event support"],
   },
   {
     fullName: "Theo Martinez",
@@ -246,17 +290,57 @@ const seedStudents = [
     experience: "Prepared survey dashboards, cleaned duplicate records, and supported campus data reporting.",
     skills: ["Python", "Data cleanup", "Analytics"],
     interests: ["machine learning", "dashboards", "automation"],
+    availability: "Evenings",
+    preferredWorkTypes: ["Data analysis", "Tech support"],
   },
 ];
 
+const managerStudents = [
+  "Ethan Park",
+  "Amina Hassan",
+  "Noah Kim",
+  "Sofia Alvarez",
+  "Liam Patel",
+];
+
 async function main() {
+  const passwordHash = await bcrypt.hash(demoPassword, 10);
+
   await prisma.match.deleteMany();
   await prisma.gig.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.student.deleteMany();
 
-  await prisma.student.createMany({
-    data: seedStudents,
+  for (const studentData of seedStudents) {
+    const student = await prisma.student.create({
+      data: studentData,
+    });
+
+    const email = `${studentData.fullName.toLowerCase().replace(/ /g, ".")}@university.edu`;
+
+    await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: "STUDENT",
+        studentId: student.id,
+      },
+    });
+  }
+
+  const managerEmail = "manager@campusgigs.com";
+  await prisma.user.create({
+    data: {
+      email: managerEmail,
+      passwordHash,
+      role: "MANAGER",
+    },
   });
+
+  console.log("Seed complete:");
+  console.log(`  - ${seedStudents.length} students created with user accounts`);
+  console.log(`  - 1 manager created: ${managerEmail}`);
+  console.log(`  - All accounts use password: ${demoPassword}`);
 }
 
 main()

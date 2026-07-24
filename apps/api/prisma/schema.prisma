@@ -7,37 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  MANAGER
+  STUDENT
+}
+
 enum GigStatus {
   OPEN
   ASSIGNED
 }
 
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  studentId    String?  @unique @db.Uuid
+  student      Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  createdGigs  Gig[]    @relation("GigCreator")
+}
+
 model Student {
-  id             String   @id @default(uuid()) @db.Uuid
-  fullName       String
-  major          String
-  graduationYear Int
-  bio            String
-  experience     String
-  skills         String[]
-  interests      String[]
-  createdAt      DateTime @default(now())
-  matches        Match[]
-  assignedGigs   Gig[]    @relation("AssignedStudent")
+  id                 String   @id @default(uuid()) @db.Uuid
+  fullName           String
+  major              String
+  graduationYear     Int
+  bio                String
+  experience         String
+  skills             String[]
+  interests          String[]
+  availability       String?
+  preferredWorkTypes String[]
+  createdAt          DateTime @default(now())
+  user               User?
+  matches            Match[]
+  assignedGigs       Gig[]    @relation("AssignedStudent")
 }
 
 model Gig {
-  id                String    @id @default(uuid()) @db.Uuid
-  title             String
-  description       String
-  location          String
-  durationHours     Int
-  hourlyRate        Float
-  status            GigStatus @default(OPEN)
+  id                 String    @id @default(uuid()) @db.Uuid
+  title              String
+  description        String
+  location           String
+  durationHours      Int
+  hourlyRate         Float
+  status             GigStatus @default(OPEN)
   assignedStudentId  String?   @db.Uuid
   assignedStudent    Student?  @relation("AssignedStudent", fields: [assignedStudentId], references: [id], onDelete: SetNull)
-  createdAt         DateTime  @default(now())
-  matches           Match[]
+  createdById        String    @db.Uuid
+  createdBy          User      @relation("GigCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt          DateTime  @default(now())
+  matches            Match[]
 }
 
 model Match {
