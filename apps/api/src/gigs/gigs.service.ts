@@ -38,7 +38,7 @@ export class GigsService {
     private readonly aiMatchingService: AiMatchingService,
   ) {}
 
-  async createGig(createGigDto: CreateGigDto): Promise<GigResponse> {
+  async createGig(createGigDto: CreateGigDto, createdById: string): Promise<GigResponse> {
     const gig = await this.prisma.gig.create({
       data: {
         title: createGigDto.title,
@@ -47,6 +47,7 @@ export class GigsService {
         durationHours: createGigDto.durationHours,
         hourlyRate: createGigDto.hourlyRate,
         status: "OPEN",
+        createdById,
       },
     });
 
@@ -71,6 +72,35 @@ export class GigsService {
   async getGig(id: string): Promise<GigResponse> {
     const gig = await this.loadGigWithRelations(this.prisma, id);
     return this.toGigResponse(gig);
+  }
+
+  async listGigs(userId: string, role: string): Promise<GigResponse[]> {
+    let gigs: GigWithRelations[];
+
+    if (role === "MANAGER") {
+      gigs = await this.prisma.gig.findMany({
+        where: { createdById: userId },
+        include: {
+          matches: { include: { student: true }, orderBy: [{ score: "desc" }, { createdAt: "asc" }] },
+          assignedStudent: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    } else {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (!user?.studentId) return [];
+
+      gigs = await this.prisma.gig.findMany({
+        where: { assignedStudentId: user.studentId },
+        include: {
+          matches: { include: { student: true }, orderBy: [{ score: "desc" }, { createdAt: "asc" }] },
+          assignedStudent: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    }
+
+    return gigs.map((gig) => this.toGigResponse(gig));
   }
 
   async assignGig(

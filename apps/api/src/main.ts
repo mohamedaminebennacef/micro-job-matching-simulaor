@@ -12,7 +12,7 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
       cors: {
         origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
       },
     });
     app.setGlobalPrefix("api");
@@ -33,8 +33,94 @@ async function bootstrap() {
       version: "1.0.0",
     },
     servers: [{ url: process.env.CORS_ORIGIN ?? "http://localhost:4000" }],
-    tags: [{ name: "CampusGigs" }],
+    tags: [{ name: "CampusGigs" }, { name: "Auth" }, { name: "Users" }],
     paths: {
+      "/api/auth/signup": {
+        post: {
+          tags: ["Auth"],
+          summary: "Register a new user",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/SignupDto" },
+              },
+            },
+          },
+          responses: {
+            201: { description: "User created." },
+            409: { description: "Email already in use." },
+          },
+        },
+      },
+      "/api/auth/signin": {
+        post: {
+          tags: ["Auth"],
+          summary: "Sign in and receive a JWT",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/SigninDto" },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "JWT token returned.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      access_token: { type: "string" },
+                      user: { $ref: "#/components/schemas/UserProfile" },
+                    },
+                  },
+                },
+              },
+            },
+            401: { description: "Invalid credentials." },
+          },
+        },
+      },
+      "/api/auth/me": {
+        get: {
+          tags: ["Auth"],
+          summary: "Get current authenticated user",
+          security: [{ Bearer: [] }],
+          responses: {
+            200: { description: "Current user." },
+            401: { description: "Unauthorized." },
+          },
+        },
+      },
+      "/api/users/me/profile": {
+        get: {
+          tags: ["Users"],
+          summary: "Get own profile (student details)",
+          security: [{ Bearer: [] }],
+          responses: {
+            200: { description: "User profile with student data." },
+          },
+        },
+        put: {
+          tags: ["Users"],
+          summary: "Update own student profile",
+          security: [{ Bearer: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/UpdateProfileDto" },
+              },
+            },
+          },
+          responses: {
+            200: { description: "Profile updated." },
+          },
+        },
+      },
       "/api/health": {
         get: {
           tags: ["CampusGigs"],
@@ -160,7 +246,54 @@ async function bootstrap() {
       },
     },
     components: {
+      securitySchemes: {
+        Bearer: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
       schemas: {
+        SignupDto: {
+          type: "object",
+          required: ["email", "password", "role"],
+          properties: {
+            email: { type: "string", format: "email" },
+            password: { type: "string", minLength: 6 },
+            role: { type: "string", enum: ["MANAGER", "STUDENT"] },
+            studentId: { type: "string", format: "uuid", description: "Required for STUDENT role" },
+          },
+        },
+        SigninDto: {
+          type: "object",
+          required: ["email", "password"],
+          properties: {
+            email: { type: "string", format: "email" },
+            password: { type: "string" },
+          },
+        },
+        UserProfile: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            email: { type: "string" },
+            role: { type: "string", enum: ["MANAGER", "STUDENT"] },
+          },
+        },
+        UpdateProfileDto: {
+          type: "object",
+          properties: {
+            fullName: { type: "string" },
+            major: { type: "string" },
+            graduationYear: { type: "number" },
+            bio: { type: "string" },
+            experience: { type: "string" },
+            skills: { type: "array", items: { type: "string" } },
+            interests: { type: "array", items: { type: "string" } },
+            availability: { type: "array", items: { type: "string" } },
+            preferredWorkTypes: { type: "array", items: { type: "string" } },
+          },
+        },
         CreateGigDto: {
           type: "object",
           required: ["title", "description", "location", "durationHours", "hourlyRate"],
