@@ -61,6 +61,7 @@ Add these in the Render dashboard under **Environment**:
 | `GROQ_API_KEY` | Your Groq API key |
 | `LLM_PROVIDER` | `groq` |
 | `CORS_ORIGIN` | `https://your-app.vercel.app` (replace after Vercel deploy) |
+| `JWT_SECRET` | A random string (e.g., `openssl rand -hex 32`) |
 
 ### Verify
 
@@ -150,10 +151,32 @@ No test step exists yet (no test framework in the project).
   ```
   GET https://campusgigs-api.onrender.com/docs
   ```
-- [ ] Create a gig via Swagger or curl:
+- [ ] Sign up a manager:
+  ```
+  POST https://campusgigs-api.onrender.com/api/auth/signup
+  Content-Type: application/json
+
+  {
+    "email": "test-manager@university.edu",
+    "password": "password123",
+    "role": "MANAGER"
+  }
+  ```
+- [ ] Sign in and receive JWT:
+  ```
+  POST https://campusgigs-api.onrender.com/api/auth/signin
+  Content-Type: application/json
+
+  {
+    "email": "test-manager@university.edu",
+    "password": "password123"
+  }
+  ```
+- [ ] Create a gig (with Bearer token):
   ```
   POST https://campusgigs-api.onrender.com/api/gigs
   Content-Type: application/json
+  Authorization: Bearer <token>
 
   {
     "title": "Help moving lab equipment",
@@ -168,11 +191,13 @@ No test step exists yet (no test framework in the project).
 
 ### Frontend (Vercel)
 
-- [ ] App loads without errors
-- [ ] Form submission works (creates a gig)
-- [ ] Results display ranked candidates
-- [ ] Low-alignment warning appears for mismatched skills
-- [ ] Top 5 candidates are shown (not all 10)
+- [ ] Landing page loads at `/`
+- [ ] Login page loads at `/login`
+- [ ] Sign up page loads at `/signup` with role selector
+- [ ] Manager dashboard loads at `/manager` (after login as manager)
+- [ ] Student dashboard loads at `/student` (after login as student)
+- [ ] Gig creation form works at `/manager/gigs/create`
+- [ ] Profile editing works at `/student/profile`
 
 ### CI (GitHub Actions)
 
@@ -217,6 +242,7 @@ No test step exists yet (no test framework in the project).
 | `GROQ_API_KEY` | Yes | Groq API key for AI matching |
 | `LLM_PROVIDER` | Yes | `groq` for production, `mock` for testing |
 | `CORS_ORIGIN` | Yes | Your Vercel frontend URL |
+| `JWT_SECRET` | Yes | Random secret for JWT signing (use `openssl rand -hex 32`) |
 
 ### Vercel (Frontend)
 

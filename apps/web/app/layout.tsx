@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist } from "next/font/google";
+import { AuthProvider } from "@/lib/auth-context";
+import { ToastProvider } from "@/lib/toast-context";
 import "./globals.css";
 
 const sans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
 });
-
-export const metadata: Metadata = {
-  title: "CampusGigs — Micro-Job Matching Simulator",
-  description:
-    "Instantly match campus odd-jobs with available student workers using AI-powered compatibility scoring.",
-};
 
 export default function RootLayout({
   children,
@@ -21,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${sans.variable} font-sans antialiased`}>
-        {children}
+        <AuthProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );
