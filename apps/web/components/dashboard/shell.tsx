@@ -17,7 +17,6 @@ import {
   Sun,
   Moon,
   Sparkles,
-  Trophy,
   Briefcase,
   ChevronsUpDown,
   Command,
@@ -43,7 +42,6 @@ type Role = "MANAGER" | "STUDENT";
 const managerNav = [
   { title: "Dashboard", href: "/manager" as Route, icon: LayoutDashboard },
   { title: "Create Gig", href: "/manager/gigs/create" as Route, icon: PlusCircle },
-  { title: "Leaderboard", href: "/manager/gigs" as Route, icon: Trophy },
   { title: "Gig History", href: "/manager/gigs" as Route, icon: History },
   { title: "Profile", href: "/manager/profile" as Route, icon: User },
 ];
@@ -113,10 +111,7 @@ export function DashboardShell({
             Workspace
           </p>
           {nav.map((item) => {
-            const active =
-              item.href === homeHref
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+            const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
