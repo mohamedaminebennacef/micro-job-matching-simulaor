@@ -5,8 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/protected-route";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { useToast } from "@/lib/toast-context";
 import { getGig, assignGig } from "@/lib/api";
+import { toast } from "sonner";
 import type { GigResult, CandidateScore } from "@/lib/api";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +60,6 @@ function MatchRing({ value }: { value: number }) {
 export default function GigDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { toast } = useToast();
   const [gig, setGig] = useState<GigResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState<string | null>(null);
@@ -89,9 +88,9 @@ export default function GigDetailPage() {
     try {
       const updated = await assignGig(gig.id, studentId);
       setGig(updated);
-      toast("Gig assigned successfully!", "success");
-    } catch {
-      toast("Failed to assign gig.", "error");
+        toast.success("Gig assigned successfully!");
+      } catch {
+        toast.error("Failed to assign gig.");
     } finally {
       setAssigning(null);
     }

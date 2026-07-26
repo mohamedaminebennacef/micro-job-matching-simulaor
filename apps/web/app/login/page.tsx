@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Trophy, Zap, GraduationCap, Briefcase, Check } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useToast } from "@/lib/toast-context";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
-  const { toast } = useToast();
   const router = useRouter();
   const [role, setRole] = useState<"manager" | "student">("student");
   const [email, setEmail] = useState("");
@@ -28,7 +27,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signIn(email, password);
-      toast("Welcome back!", "success");
+      toast.success("Welcome back!");
       const token = localStorage.getItem("token");
       if (token) {
         const res = await fetch(

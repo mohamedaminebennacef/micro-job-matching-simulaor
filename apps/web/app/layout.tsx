@@ -2,7 +2,7 @@
 
 import { Geist } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
-import { ToastProvider } from "@/lib/toast-context";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const sans = Geist({
@@ -19,8 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sans.variable} font-sans antialiased`}>
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          {children}
         </AuthProvider>
+        <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>
   );

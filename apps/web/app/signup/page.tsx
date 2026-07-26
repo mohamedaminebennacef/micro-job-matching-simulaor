@@ -12,7 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useToast } from "@/lib/toast-context";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,6 @@ import { Separator } from "@/components/ui/separator";
 
 export default function SignupPage() {
   const { signUp } = useAuth();
-  const { toast } = useToast();
   const router = useRouter();
   const [role, setRole] = useState<"student" | "manager">("student");
   const [firstName, setFirstName] = useState("");
@@ -36,7 +35,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await signUp(email, password, role === "manager" ? "MANAGER" : "STUDENT");
-      toast("Account created! Welcome to CampusGigs.", "success");
+      toast.success("Account created! Welcome to CampusGigs.");
       router.replace(role === "manager" ? "/manager" : "/student");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");

@@ -4,7 +4,6 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/lib/auth-context";
-import { useToast } from "@/lib/toast-context";
 import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +16,7 @@ import { ChipInput } from "@/components/ui/chip-input";
 import { Avatar } from "@/components/ui/avatar";
 import { assignGig as apiAssignGig, createGig as apiCreateGig } from "@/lib/api";
 import type { GigResult, CandidateScore } from "@/lib/api";
+import { toast } from "sonner";
 import { Sparkles, Trophy, ChevronRight, ChevronLeft, MapPin, Clock, DollarSign, CheckCircle } from "lucide-react";
 
 const STEPS = ["Basics", "Requirements", "Logistics", "Review"];
@@ -119,7 +119,6 @@ const emptyGig = { title: "", description: "", location: "", durationHours: 2, h
 
 export default function CreateGigPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [form, setForm] = useState(emptyGig);
   const [result, setResult] = useState<GigResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -145,11 +144,11 @@ export default function CreateGigPage() {
       try {
         const gig = await apiCreateGig({ title: form.title, description: form.description, location: form.location, durationHours: Number(form.durationHours), hourlyRate: Number(form.hourlyRate) });
         setResult(gig);
-        toast("Gig created! AI matching complete.", "success");
+        toast.success("Gig created! AI matching complete.");
       } catch {
         setResult(null);
         setError("Could not save the gig. Make sure the API is running and the database is connected.");
-        toast("Failed to create gig.", "error");
+        toast.error("Failed to create gig.");
       }
     });
   }
@@ -165,10 +164,10 @@ export default function CreateGigPage() {
       try {
         const gig = await apiAssignGig(result.id, studentId);
         setResult(gig);
-        toast("Gig assigned successfully!", "success");
+        toast.success("Gig assigned successfully!");
       } catch {
         setError("Unable to assign the gig right now. Check the API service and try again.");
-        toast("Failed to assign gig.", "error");
+        toast.error("Failed to assign gig.");
       }
     });
   }

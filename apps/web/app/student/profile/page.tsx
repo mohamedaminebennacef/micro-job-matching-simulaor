@@ -5,7 +5,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { useAuth } from "@/lib/auth-context";
 import { getProfile, updateProfile } from "@/lib/api";
-import { useToast } from "@/lib/toast-context";
+import { toast } from "sonner";
 import type { StudentProfile } from "@/lib/api";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +50,6 @@ function Check({ label, done }: { label: string; done?: boolean }) {
 
 export default function StudentProfilePage() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -110,9 +109,9 @@ export default function StudentProfilePage() {
         preferredWorkTypes,
       });
       setProfile(updated);
-      toast("Profile saved successfully!", "success");
+      toast.success("Profile saved successfully!");
     } catch {
-      toast("Failed to save profile. Please try again.", "error");
+      toast.error("Failed to save profile. Please try again.");
     } finally {
       setSaving(false);
     }
