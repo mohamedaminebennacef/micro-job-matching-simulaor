@@ -111,11 +111,6 @@ export default function SignupPage() {
           </div>
 
           <div className="my-5 flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400">
-              or
-            </span>
-            <Separator className="flex-1" />
           </div>
 
           <form className="space-y-3" onSubmit={handleSubmit}>

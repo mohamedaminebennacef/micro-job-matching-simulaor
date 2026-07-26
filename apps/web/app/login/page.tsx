@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Trophy, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, Trophy, Zap, GraduationCap, Briefcase, Check } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import { Button } from "@/components/ui/button";
@@ -67,26 +67,48 @@ export default function LoginPage() {
             Sign in to your workspace to continue.
           </p>
 
-          {/* Role toggle */}
-          <div className="mt-6 grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-            {(["student", "manager"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition ${
-                  role === r ? "bg-white text-slate-900 shadow-xs" : "text-slate-500"
-                }`}
-              >
-                {r}
-              </button>
-            ))}
+          {/* Role selector cards */}
+          <div className="mt-6 grid grid-cols-2 gap-2">
+            {[
+              {
+                id: "student" as const,
+                icon: GraduationCap,
+                title: "Student",
+                desc: "Find campus gigs",
+              },
+              {
+                id: "manager" as const,
+                icon: Briefcase,
+                title: "Manager",
+                desc: "Post & assign gigs",
+              },
+            ].map((r) => {
+              const active = role === r.id;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => setRole(r.id)}
+                  className={`group relative rounded-xl border p-3 text-left transition ${
+                    active
+                      ? "border-slate-900 bg-slate-50 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  {active && (
+                    <div className="absolute right-2 top-2 grid h-4 w-4 place-items-center rounded-full bg-slate-900 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </div>
+                  )}
+                  <r.icon className="h-5 w-5 text-slate-700" />
+                  <p className="mt-2 text-sm font-medium">{r.title}</p>
+                  <p className="text-[11px] text-slate-500">{r.desc}</p>
+                </button>
+              );
+            })}
           </div>
 
           <div className="my-6 flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400">or</span>
-            <Separator className="flex-1" />
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
