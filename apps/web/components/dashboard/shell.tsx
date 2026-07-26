@@ -88,10 +88,10 @@ export function DashboardShell({
   };
 
   return (
-    <div className="flex min-h-dvh bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50">
-        <div className="flex h-16 items-center gap-2 border-b border-slate-200/80 px-5 dark:border-slate-800">
+      <aside className="hidden lg:flex h-full w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200/80 px-5 dark:border-slate-800">
           <Link href={homeHref as Route} className="flex items-center gap-2">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-slate-900 to-slate-700 text-white shadow-sm dark:from-white dark:to-slate-300 dark:text-slate-900">
               <Sparkles className="h-4 w-4" />
@@ -130,7 +130,7 @@ export function DashboardShell({
           })}
         </nav>
 
-        <div className="mt-auto p-3">
+        <div className="mt-auto shrink-0 p-3">
           <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-slate-800 dark:from-slate-900 dark:to-slate-950">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-amber-500" />
@@ -149,10 +149,10 @@ export function DashboardShell({
         </div>
       </aside>
 
-      {/* Main */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* Main area */}
+      <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
         {/* Topbar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/70 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50 lg:px-8">
+        <header className="z-40 flex h-16 shrink-0 items-center gap-3 border-b border-slate-200/80 bg-white/70 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50 lg:px-8">
           <div className="flex flex-1 items-center gap-3 min-w-0">
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500">
               <Link href={homeHref as Route} className="hover:text-slate-900 dark:hover:text-white">
@@ -213,37 +213,37 @@ export function DashboardShell({
           </div>
         </header>
 
-        {/* Page header */}
-        {(title || actions) && (
-          <div className="border-b border-slate-200/80 bg-white/40 px-4 py-6 dark:border-slate-800 dark:bg-slate-900/30 lg:px-8">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-              <div className="min-w-0">
-                {title && (
-                  <h1 className="truncate text-2xl font-semibold tracking-tight">{title}</h1>
-                )}
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Page header — scrolls with content */}
+          {(title || actions) && (
+            <div className="border-b border-slate-200/80 bg-white/40 px-4 py-6 dark:border-slate-800 dark:bg-slate-900/30 lg:px-8">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+                <div className="min-w-0">
+                  {title && (
+                    <h1 className="truncate text-2xl font-semibold tracking-tight">{title}</h1>
+                  )}
+                </div>
+                {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
               </div>
-              {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Content */}
-        <motion.main
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 p-4 pb-24 lg:p-8"
-        >
-          {children}
-        </motion.main>
+          {/* Content */}
+          <motion.main
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="p-4 pb-24 lg:p-8"
+          >
+            {children}
+          </motion.main>
+        </div>
 
         {/* Mobile bottom nav */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-200 bg-white/90 px-2 py-2 backdrop-blur-xl lg:hidden dark:border-slate-800 dark:bg-slate-900/90">
           {nav.slice(0, 4).map((item) => {
-            const active =
-              item.href === homeHref
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+            const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
