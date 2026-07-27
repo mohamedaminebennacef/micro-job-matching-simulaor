@@ -65,6 +65,7 @@ export function DashboardShell({
   actions?: ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -152,7 +153,7 @@ export function DashboardShell({
       {/* Main area */}
       <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
         {/* Topbar */}
-        <header className="z-40 flex h-16 shrink-0 items-center gap-3 border-b border-slate-200/80 bg-white/70 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50 lg:px-8">
+        <header className="z-40 isolate flex h-16 shrink-0 items-center gap-3 border-b border-slate-200/80 bg-white/70 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/50 lg:px-8">
           <div className="flex flex-1 items-center gap-3 min-w-0">
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500">
               <Link href={homeHref as Route} className="hover:text-slate-900 dark:hover:text-white">
@@ -200,10 +201,8 @@ export function DashboardShell({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link href={`${homeHref}/profile` as Route} className="flex items-center gap-2">
-                    <User className="h-4 w-4" /> Profile
-                  </Link>
+                <DropdownMenuItem onClick={() => router.push(`${homeHref}/profile` as Route)}>
+                  <User className="h-4 w-4" /> Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut}>
                   <LogOut className="h-4 w-4" /> Sign out
