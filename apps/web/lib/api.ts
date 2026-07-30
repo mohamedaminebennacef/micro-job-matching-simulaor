@@ -103,6 +103,31 @@ export interface GigInput {
   location: string;
   durationHours: number;
   hourlyRate: number;
+  skills?: string[];
+  schedule?: string;
+  contact?: string;
+}
+
+export function createGigInput(data: {
+  title: string;
+  description: string;
+  location: string;
+  durationHours: number;
+  hourlyRate: number;
+  skills: string[];
+  schedule: string | undefined;
+  contact: string | undefined;
+}): GigInput {
+  return {
+    title: data.title,
+    description: data.description,
+    location: data.location,
+    durationHours: data.durationHours,
+    hourlyRate: data.hourlyRate,
+    ...(data.skills.length > 0 ? { skills: data.skills } : {}),
+    ...(data.schedule ? { schedule: data.schedule } : {}),
+    ...(data.contact ? { contact: data.contact } : {}),
+  };
 }
 
 export interface GigResult {
