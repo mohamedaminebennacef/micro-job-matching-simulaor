@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Min } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateGigDto {
@@ -23,4 +23,20 @@ export class CreateGigDto {
   @IsNumber()
   @Min(0)
   hourlyRate!: number;
+
+  @ApiProperty({ example: ["React", "TypeScript"], required: false })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
+
+  @ApiProperty({ example: "Mon / Wed / Fri · 9:00–13:00", required: false })
+  @IsOptional()
+  @IsString()
+  schedule?: string;
+
+  @ApiProperty({ example: "alex.kim@stanford.edu", required: false })
+  @IsOptional()
+  @IsString()
+  contact?: string;
 }

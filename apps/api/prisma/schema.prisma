@@ -58,6 +58,9 @@ model Gig {
   createdById        String    @db.Uuid
   createdBy          User      @relation("GigCreator", fields: [createdById], references: [id], onDelete: Cascade)
   createdAt          DateTime  @default(now())
+  skills             String[]
+  schedule           String?
+  contact            String?
   matches            Match[]
 }
 
