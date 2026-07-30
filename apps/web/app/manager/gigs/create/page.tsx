@@ -193,7 +193,7 @@ export default function CreateGigPage() {
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
           {/* Wizard sidebar */}
           <aside className="space-y-4">
-            <div className="sticky top-24 space-y-4">
+            <div className="lg:sticky lg:top-4 space-y-4">
               <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Steps</p>
                 <ol className="mt-4 space-y-1">

@@ -206,7 +206,7 @@ export default function StudentProfilePage() {
 
             {/* Sidebar */}
             <aside className="space-y-4">
-              <div className="sticky top-24 space-y-4">
+              <div className="lg:sticky lg:top-4 space-y-4">
                 <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
