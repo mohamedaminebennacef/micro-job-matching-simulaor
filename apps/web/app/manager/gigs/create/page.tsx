@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ChipInput } from "@/components/ui/chip-input";
 import { Avatar } from "@/components/ui/avatar";
-import { assignGig as apiAssignGig, createGig as apiCreateGig } from "@/lib/api";
+import { assignGig as apiAssignGig, createGig as apiCreateGig, createGigInput } from "@/lib/api";
 import type { GigResult, CandidateScore } from "@/lib/api";
 import { toast } from "sonner";
 import { Sparkles, Trophy, ChevronRight, ChevronLeft, MapPin, Clock, DollarSign, CheckCircle } from "lucide-react";
@@ -115,7 +115,7 @@ function CandidateCard({ candidate, rank, isBest, isTied, isAssigned, isPending,
   );
 }
 
-const emptyGig = { title: "", description: "", location: "", durationHours: 2, hourlyRate: 18, requiredSkills: [] as string[], preferredInterests: [] as string[] };
+const emptyGig = { title: "", description: "", location: "", durationHours: 2, hourlyRate: 18, requiredSkills: [] as string[], preferredInterests: [] as string[], schedule: "", contact: "" };
 
 export default function CreateGigPage() {
   const { user } = useAuth();
@@ -142,7 +142,16 @@ export default function CreateGigPage() {
     setError(null);
     startTransition(async () => {
       try {
-        const gig = await apiCreateGig({ title: form.title, description: form.description, location: form.location, durationHours: Number(form.durationHours), hourlyRate: Number(form.hourlyRate) });
+        const gig = await apiCreateGig(createGigInput({
+          title: form.title,
+          description: form.description,
+          location: form.location,
+          durationHours: Number(form.durationHours),
+          hourlyRate: Number(form.hourlyRate),
+          skills: form.requiredSkills,
+          schedule: form.schedule || undefined,
+          contact: form.contact || undefined,
+        }));
         setResult(gig);
         toast.success("Gig created! AI matching complete.");
       } catch {
@@ -281,6 +290,14 @@ export default function CreateGigPage() {
                         <Label className="text-xs font-medium text-slate-600 dark:text-slate-400">Hourly rate ($)</Label>
                         <Input type="number" value={form.hourlyRate} onChange={(e) => handleChange("hourlyRate", Number(e.target.value))} min={1} className="rounded-lg" />
                       </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-slate-600 dark:text-slate-400">Schedule</Label>
+                        <Input value={form.schedule} onChange={(e) => setForm((cur) => ({ ...cur, schedule: e.target.value }))} placeholder="Mon / Wed / Fri · 9:00–13:00" className="rounded-lg" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-slate-600 dark:text-slate-400">Contact</Label>
+                        <Input value={form.contact} onChange={(e) => setForm((cur) => ({ ...cur, contact: e.target.value }))} placeholder="you@stanford.edu" className="rounded-lg" />
+                      </div>
                     </div>
                   )}
                   {step === 3 && (
@@ -294,6 +311,8 @@ export default function CreateGigPage() {
                         <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Total</p><p className="mt-1 text-sm font-semibold">${totalEst}</p></div>
                       </div>
                       {form.requiredSkills.length > 0 && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Skills</p><div className="mt-1 flex flex-wrap gap-1.5">{form.requiredSkills.map((s) => <span key={s} className="rounded-md bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300">{s}</span>)}</div></div>}
+                      {form.schedule && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Schedule</p><p className="mt-1 text-sm">{form.schedule}</p></div>}
+                      {form.contact && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Contact</p><p className="mt-1 text-sm">{form.contact}</p></div>}
                     </div>
                   )}
 
