@@ -96,9 +96,9 @@ function CandidateCard({ candidate, rank, isBest, isTied, isAssigned, isPending,
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
             <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className={`h-full rounded-full ${tone.bar}`} />
           </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-2">
             {candidate.student.skills.slice(0, 4).map((s) => (
-              <span key={s} className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>
+              <span key={s} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>
             ))}
           </div>
           <p className="mt-3 text-xs leading-relaxed text-slate-500">{candidate.justification}</p>
@@ -310,7 +310,7 @@ export default function CreateGigPage() {
                         <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Rate</p><p className="mt-1 text-sm font-semibold">${form.hourlyRate}/hr</p></div>
                         <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Total</p><p className="mt-1 text-sm font-semibold">${totalEst}</p></div>
                       </div>
-                      {form.requiredSkills.length > 0 && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Skills</p><div className="mt-1 flex flex-wrap gap-1.5">{form.requiredSkills.map((s) => <span key={s} className="rounded-md bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300">{s}</span>)}</div></div>}
+                      {form.requiredSkills.length > 0 && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Skills</p><div className="mt-1 flex flex-wrap gap-2">{form.requiredSkills.map((s) => <span key={s} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>)}</div></div>}
                       {form.schedule && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Schedule</p><p className="mt-1 text-sm">{form.schedule}</p></div>}
                       {form.contact && <div><p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Contact</p><p className="mt-1 text-sm">{form.contact}</p></div>}
                     </div>
@@ -401,7 +401,7 @@ export default function CreateGigPage() {
                               <p className="text-lg font-semibold text-white">{result.candidates[0].student.name}</p>
                               <p className="mt-0.5 text-xs text-white/60">{result.candidates[0].student.major}</p>
                               <div className="mt-3 flex flex-wrap gap-1.5">
-                                {result.candidates[0].student.skills.slice(0, 4).map((s) => <span key={s} className="rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/90 backdrop-blur">{s}</span>)}
+                                {result.candidates[0].student.skills.slice(0, 4).map((s) => <span key={s} className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/90 backdrop-blur">{s}</span>)}
                               </div>
                             </div>
                             <div className="shrink-0 text-right">

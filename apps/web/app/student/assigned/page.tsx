@@ -14,15 +14,16 @@ import { MapPin, Clock, DollarSign, Calendar, Briefcase } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const statusStyles: Record<string, string> = {
   Assigned: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   Open: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
 };
 
-function Item({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+function Item({ icon: Icon, label, value, className }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; className?: string }) {
   return (
-    <div className="min-w-0">
+    <div className={cn("min-w-0 py-3", className)}>
       <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-slate-500">
         <Icon className="h-3 w-3" /> {label}
       </dt>
@@ -93,21 +94,7 @@ export default function AssignedGigs() {
                   <Item icon={DollarSign} label="Total" value={`$${g.gig.durationHours * g.gig.hourlyRate}`} />
                 </dl>
 
-                {g.gig.skills && g.gig.skills.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {g.gig.skills.slice(0, 3).map((s) => (
-                      <span key={s} className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">{s}</span>
-                    ))}
-                    {g.gig.skills.length > 3 && (
-                      <span className="text-[10px] text-slate-400">+{g.gig.skills.length - 3}</span>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="text-[11px] text-slate-500">
-                    {new Date(g.createdAt).toLocaleDateString()}
-                  </span>
+                <div className="mt-4 flex items-center justify-end border-t border-slate-100 pt-3 dark:border-slate-800">
                   <Button variant="outline" size="sm" className="rounded-lg" onClick={() => setOpenGig(g)}>Details</Button>
                 </div>
               </motion.article>
@@ -116,7 +103,7 @@ export default function AssignedGigs() {
         )}
 
         <Dialog open={openGig !== null} onOpenChange={(o) => !o && setOpenGig(null)}>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-xl">
             {openGig && (
               <>
                 <DialogHeader>
@@ -130,31 +117,41 @@ export default function AssignedGigs() {
 
                 <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{openGig.gig.description}</p>
 
-                <dl className="grid grid-cols-2 gap-4 rounded-xl border border-slate-100 p-4 text-sm dark:border-slate-800">
-                  <Item icon={MapPin} label="Location" value={openGig.gig.location} />
-                  <Item icon={Clock} label="Hours" value={`${openGig.gig.durationHours}h`} />
-                  <Item icon={Calendar} label="Rate" value={`$${openGig.gig.hourlyRate}/hr`} />
-                  <Item icon={DollarSign} label="Total" value={`$${openGig.gig.durationHours * openGig.gig.hourlyRate}`} />
+                <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-1 rounded-xl border border-slate-100 p-4 text-sm dark:border-slate-800">
+                  <Item icon={MapPin} label="Location" value={openGig.gig.location} className="py-2" />
+                  <Item icon={Clock} label="Hours" value={`${openGig.gig.durationHours}h`} className="py-2" />
+                  <Item icon={Calendar} label="Rate" value={`$${openGig.gig.hourlyRate}/hr`} className="py-2" />
+                  <Item icon={DollarSign} label="Total" value={`$${openGig.gig.durationHours * openGig.gig.hourlyRate}`} className="py-2" />
                 </dl>
 
-                {openGig.gig.skills && openGig.gig.skills.length > 0 && (
-                  <div>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-500">Skills</p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {openGig.gig.skills.map((s) => (
-                        <Badge key={s} variant="secondary" className="rounded-md font-normal">{s}</Badge>
-                      ))}
-                    </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-slate-500">Skills</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {openGig.gig.skills && openGig.gig.skills.length > 0 ? openGig.gig.skills.map((s) => (
+                      <span key={s} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>
+                    )) : (
+                      <p className="text-sm text-slate-400 italic">No skills listed</p>
+                    )}
                   </div>
-                )}
+                </div>
 
-                <div className="space-y-1 text-sm">
-                  {openGig.gig.schedule && (
-                    <p className="text-slate-500"><span className="text-[11px] uppercase tracking-wider">Schedule</span> · {openGig.gig.schedule}</p>
-                  )}
-                  {openGig.gig.contact && (
-                    <p className="text-slate-500"><span className="text-[11px] uppercase tracking-wider">Contact</span> · {openGig.gig.contact}</p>
-                  )}
+                <div className="space-y-1 text-sm pt-2">
+                  <p className="text-slate-500">
+                    <span className="text-[11px] uppercase tracking-wider">Schedule</span>
+                    {openGig.gig.schedule ? (
+                      <> · {openGig.gig.schedule}</>
+                    ) : (
+                      <span className="ml-1 text-slate-400 italic">Not specified</span>
+                    )}
+                  </p>
+                  <p className="text-slate-500">
+                    <span className="text-[11px] uppercase tracking-wider">Contact</span>
+                    {openGig.gig.contact ? (
+                      <> · {openGig.gig.contact}</>
+                    ) : (
+                      <span className="ml-1 text-slate-400 italic">Not specified</span>
+                    )}
+                  </p>
                 </div>
 
                 <DialogFooter>

@@ -160,9 +160,9 @@ export default function GigDetailPage() {
                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80">
                       {topCandidate.justification}
                     </p>
-                    <div className="mt-4 flex flex-wrap gap-1.5">
+                    <div className="mt-4 flex flex-wrap gap-2">
                       {topCandidate.student.skills.map((s) => (
-                        <Badge key={s} variant="secondary" className="border-white/10 bg-white/10 text-white hover:bg-white/15">{s}</Badge>
+                        <span key={s} className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/90 backdrop-blur">{s}</span>
                       ))}
                     </div>
                   </div>
@@ -223,9 +223,9 @@ export default function GigDetailPage() {
 
                       <p className="mt-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{candidate.justification}</p>
 
-                      <div className="mt-4 flex flex-wrap gap-1.5">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {candidate.student.skills.map((s) => (
-                          <Badge key={s} variant="secondary" className="text-[11px]">{s}</Badge>
+                          <span key={s} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>
                         ))}
                       </div>
 
