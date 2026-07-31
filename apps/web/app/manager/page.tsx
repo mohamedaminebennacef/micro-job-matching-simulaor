@@ -9,6 +9,7 @@ import { StatCard } from "@/components/dashboard/shell";
 import { useAuth } from "@/lib/auth-context";
 import { listGigs } from "@/lib/api";
 import type { GigResult } from "@/lib/api";
+import { statusLabel, statusTone } from "@/lib/status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
@@ -38,8 +39,13 @@ export default function ManagerDashboard() {
   }, []);
 
   const total = gigs.length;
-  const assigned = gigs.filter((g) => g.status === "Assigned").length;
-  const pending = total - assigned;
+  const counts = {
+    open: gigs.filter((g) => g.status === "Open").length,
+    assigned: gigs.filter((g) => g.status === "Assigned").length,
+    inProgress: gigs.filter((g) => g.status === "InProgress").length,
+    pending: gigs.filter((g) => g.status === "PendingConfirmation").length,
+    completed: gigs.filter((g) => g.status === "Completed").length,
+  };
   const avgMatch =
     gigs.length > 0
       ? Math.round(
@@ -66,11 +72,12 @@ export default function ManagerDashboard() {
       >
         <div className="space-y-8">
           {/* Stats */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Total gigs" value={loading ? "—" : total} hint="Posted this semester" icon={Briefcase} trend={{ value: "+12%", positive: true }} />
-            <StatCard label="Assigned" value={loading ? "—" : assigned} hint="Active or completed" icon={CheckCircle2} trend={{ value: "+8%", positive: true }} />
-            <StatCard label="Pending match" value={loading ? "—" : pending} hint="Awaiting your review" icon={Clock} />
-            <StatCard label="Avg match" value={loading ? "—" : `${avgMatch}%`} hint="Across all gigs" icon={TrendingUp} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <StatCard label="Open" value={loading ? "—" : counts.open} hint="Awaiting assignment" icon={Briefcase} />
+            <StatCard label="Assigned" value={loading ? "—" : counts.assigned} hint="Awaiting student" icon={Clock} />
+            <StatCard label="In Progress" value={loading ? "—" : counts.inProgress} hint="Being worked on" icon={CheckCircle2} />
+            <StatCard label="Pending Confirmation" value={loading ? "—" : counts.pending} hint="Needs your review" icon={Users} />
+            <StatCard label="Completed" value={loading ? "—" : counts.completed} hint="Finished gigs" icon={TrendingUp} />
           </div>
 
           {/* Chart + activity */}
@@ -164,10 +171,7 @@ export default function ManagerDashboard() {
               ) : (
                 recent.map((gig, i) => {
                   const topMatch = gig.candidates[0];
-                  const statusTone =
-                    gig.status === "Assigned"
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                      : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400";
+                  const statusToneClass = statusTone(gig.status);
                   return (
                     <motion.div
                       key={gig.id}
@@ -186,7 +190,7 @@ export default function ManagerDashboard() {
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <Badge variant="secondary" className={statusTone}>{gig.status}</Badge>
+                        <Badge variant="secondary" className={statusToneClass}>{statusLabel(gig.status)}</Badge>
                         <Link href={`/manager/gigs/${gig.id}` as Route}>
                           <Button variant="ghost" size="icon" aria-label="More"><MoreHorizontal className="h-4 w-4" /></Button>
                         </Link>
