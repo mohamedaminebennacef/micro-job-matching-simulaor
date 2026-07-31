@@ -9,6 +9,7 @@ import { StatCard } from "@/components/dashboard/shell";
 import { useAuth } from "@/lib/auth-context";
 import { getProfile, listGigs } from "@/lib/api";
 import type { UserProfile, GigResult } from "@/lib/api";
+import { statusLabel, statusTone } from "@/lib/status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -53,28 +54,37 @@ export default function StudentDashboard() {
   }, [student]);
 
   const stats = useMemo(() => {
-    const totalHours = gigs.reduce((sum, g) => sum + g.gig.durationHours, 0);
     const avgMatch = gigs.length > 0
       ? Math.round(gigs.reduce((sum, g) => sum + (g.candidates[0]?.matchPercent ?? 0), 0) / gigs.length)
       : 0;
-    return { totalHours, avgMatch };
+    const counts = {
+      assigned: gigs.filter((g) => g.status === "Assigned").length,
+      inProgress: gigs.filter((g) => g.status === "InProgress").length,
+      pending: gigs.filter((g) => g.status === "PendingConfirmation").length,
+      completed: gigs.filter((g) => g.status === "Completed").length,
+    };
+    return { avgMatch, counts };
   }, [gigs]);
 
   const timeline = useMemo(() => {
     return gigs.slice(0, 4).map((gig, i) => ({
       title: `Assigned to ${gig.gig.title}`,
       when: i === 0 ? "2 hours ago" : i === 1 ? "Yesterday" : i === 2 ? "3 days ago" : "1 week ago",
-      tone: gig.status === "Assigned" ? "emerald" : "amber",
+      tone: gig.status === "Completed" || gig.status === "InProgress" ? "emerald" : "amber",
     }));
   }, [gigs]);
 
   const upcoming = useMemo(() => {
-    return gigs.slice(0, 2).map((gig) => ({
-      title: gig.gig.title,
-      when: `Starts Mon · ${gig.gig.durationHours} hrs`,
-      pay: `$${gig.gig.hourlyRate}/hr`,
-      status: gig.status === "Assigned" ? "Confirmed" : "Pending",
-    }));
+    return gigs
+      .filter((g) => g.status !== "Completed")
+      .slice(0, 2)
+      .map((gig) => ({
+        title: gig.gig.title,
+        when: `Starts Mon · ${gig.gig.durationHours} hrs`,
+        pay: `$${gig.gig.hourlyRate}/hr`,
+        status: statusLabel(gig.status),
+        tone: statusTone(gig.status),
+      }));
   }, [gigs]);
 
   const skillProgress = useMemo(() => {
@@ -129,10 +139,10 @@ export default function StudentDashboard() {
 
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Assigned" value={loading ? "—" : gigs.length} hint="Active gigs" icon={Briefcase} />
-            <StatCard label="Hours logged" value={loading ? "—" : stats.totalHours} hint="Total across gigs" icon={Clock} />
-            <StatCard label="Avg match" value={loading ? "—" : `${stats.avgMatch}%`} hint="Your match score" icon={TrendingUp} />
-            <StatCard label="Skills" value={loading ? "—" : (student?.skills?.length ?? 0)} hint="In your profile" icon={Award} />
+            <StatCard label="Assigned" value={loading ? "—" : stats.counts.assigned} hint="Awaiting your decision" icon={Briefcase} />
+            <StatCard label="In Progress" value={loading ? "—" : stats.counts.inProgress} hint="Currently working" icon={Clock} />
+            <StatCard label="Pending Confirmation" value={loading ? "—" : stats.counts.pending} hint="Awaiting manager" icon={CheckCircle2} />
+            <StatCard label="Completed" value={loading ? "—" : stats.counts.completed} hint="Finished gigs" icon={Award} />
           </div>
 
           {/* Upcoming + Activity */}
@@ -162,7 +172,7 @@ export default function StudentDashboard() {
                         <p className="truncate text-sm font-medium">{u.title}</p>
                         <p className="truncate text-xs text-slate-500">{u.when} · {u.pay}</p>
                       </div>
-                      <Badge variant="secondary" className={u.status === "Confirmed" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400"}>
+                      <Badge variant="secondary" className={u.tone}>
                         {u.status}
                       </Badge>
                     </div>
