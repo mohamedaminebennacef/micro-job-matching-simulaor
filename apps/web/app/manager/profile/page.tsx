@@ -26,9 +26,7 @@ export default function ManagerProfile() {
 
   return (
     <ProtectedRoute allowedRoles={["MANAGER"]}>
-      <DashboardLayout breadcrumb="Profile" title="Your profile"
-        actions={<Button className="rounded-lg bg-slate-900 hover:bg-slate-800">Save changes</Button>}
-      >
+      <DashboardLayout breadcrumb="Profile" title="Your profile">
         {loading ? (
           <div className="space-y-4">
             <div className="h-48 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
@@ -82,6 +80,10 @@ export default function ManagerProfile() {
                   and assign student workers.
                 </p>
               </section>
+
+              <div className="flex justify-end">
+                <Button className="rounded-lg bg-slate-900 hover:bg-slate-800">Save changes</Button>
+              </div>
             </div>
 
             <aside className="space-y-4">

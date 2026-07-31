@@ -20,7 +20,6 @@ import {
   Clock,
   Users,
   ArrowUpRight,
-  Plus,
   MoreHorizontal,
   Sparkles,
   TrendingUp,
@@ -59,16 +58,6 @@ export default function ManagerDashboard() {
       <DashboardLayout
         breadcrumb="Dashboard"
         title="Dashboard"
-        actions={
-          <>
-            <Button variant="outline" className="rounded-lg">Export</Button>
-            <Link href="/manager/gigs/create">
-              <Button className="rounded-lg bg-slate-900 hover:bg-slate-800">
-                <Plus className="mr-1.5 h-4 w-4" /> New gig
-              </Button>
-            </Link>
-          </>
-        }
       >
         <div className="space-y-8">
           {/* Stats */}

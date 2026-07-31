@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Search, Filter, Plus, MoreHorizontal, Briefcase, Inbox, CheckCheck } from "lucide-react";
+import { Search, Filter, MoreHorizontal, Briefcase, Inbox, CheckCheck } from "lucide-react";
 
 function gigHref(id: string) {
   return `/manager/gigs/${id}` as const;
@@ -73,13 +73,6 @@ export default function GigHistory() {
       <DashboardLayout
         breadcrumb="Gig History"
         title="Gig History"
-        actions={
-          <Link href="/manager/gigs/create">
-            <Button className="rounded-lg bg-slate-900 hover:bg-slate-800">
-              <Plus className="mr-1.5 h-4 w-4" /> New gig
-            </Button>
-          </Link>
-        }
       >
         <div className="space-y-5">
           {/* Toolbar */}
