@@ -104,7 +104,76 @@ export class CampusGigsController {
   assignGig(
     @Param("id", new ParseUUIDPipe()) id: string,
     @Body() assignGigDto: AssignGigDto,
+    @CurrentUser() user: { id: string },
   ) {
-    return this.gigsService.assignGig(id, assignGigDto);
+    return this.gigsService.assignGig(id, assignGigDto, user.id);
+  }
+
+  @Post("gigs/:id/accept")
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Accept an assigned gig (starts work)" })
+  @ApiParam({ name: "id", description: "Gig UUID" })
+  @ApiResponse({ status: 200, description: "Gig accepted and moved to in progress." })
+  @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Student role required." })
+  acceptGig(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: { id: string; studentId: string | null },
+  ) {
+    return this.gigsService.acceptGig(id, user.studentId ?? "");
+  }
+
+  @Post("gigs/:id/decline")
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Decline an assigned gig (returns gig to open)" })
+  @ApiParam({ name: "id", description: "Gig UUID" })
+  @ApiResponse({ status: 200, description: "Gig declined and returned to open." })
+  @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Student role required." })
+  declineGig(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: { id: string; studentId: string | null },
+  ) {
+    return this.gigsService.declineGig(id, user.studentId ?? "");
+  }
+
+  @Post("gigs/:id/complete")
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Mark an in-progress gig as awaiting confirmation" })
+  @ApiParam({ name: "id", description: "Gig UUID" })
+  @ApiResponse({ status: 200, description: "Gig marked as pending completion." })
+  @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Student role required." })
+  completeGig(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: { id: string; studentId: string | null },
+  ) {
+    return this.gigsService.completeGig(id, user.studentId ?? "");
+  }
+
+  @Post("gigs/:id/confirm")
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.MANAGER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Confirm completion of a gig" })
+  @ApiParam({ name: "id", description: "Gig UUID" })
+  @ApiResponse({ status: 200, description: "Gig marked as completed." })
+  @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Manager role required." })
+  confirmGig(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.gigsService.confirmGigCompletion(id, user.id);
   }
 }

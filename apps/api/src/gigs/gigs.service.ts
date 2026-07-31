@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import type {
   Prisma,
   PrismaClient,
   Student as PrismaStudent,
+  User as PrismaUser,
 } from "@prisma/client";
 import { AssignGigDto } from "../dto/assign-gig.dto.js";
 import { CreateGigDto } from "../dto/create-gig.dto.js";
@@ -26,6 +28,7 @@ type GigWithRelations = PrismaGig & {
     student: PrismaStudent;
   })[];
   assignedStudent: PrismaStudent | null;
+  createdBy: PrismaUser;
 };
 
 @Injectable()
@@ -86,6 +89,7 @@ export class GigsService {
         include: {
           matches: { include: { student: true }, orderBy: [{ score: "desc" }, { createdAt: "asc" }] },
           assignedStudent: true,
+          createdBy: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -98,6 +102,7 @@ export class GigsService {
         include: {
           matches: { include: { student: true }, orderBy: [{ score: "desc" }, { createdAt: "asc" }] },
           assignedStudent: true,
+          createdBy: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -109,6 +114,7 @@ export class GigsService {
   async assignGig(
     id: string,
     assignGigDto: AssignGigDto,
+    userId: string,
   ): Promise<GigResponse> {
     return this.prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
       const gig = await this.loadGigWithRelations(transaction, id);
@@ -122,11 +128,20 @@ export class GigsService {
         );
       }
 
+      if (gig.createdById !== userId) {
+        throw new ForbiddenException("You do not own this gig");
+      }
+
+      if (gig.status !== "OPEN") {
+        throw new BadRequestException("Only open gigs can be assigned");
+      }
+
       await transaction.gig.update({
         where: { id },
         data: {
           status: "ASSIGNED",
           assignedStudentId: assignGigDto.studentId,
+          completedAt: null,
         },
       });
 
@@ -136,6 +151,80 @@ export class GigsService {
         selectedCandidate: this.toCandidate(candidate),
       };
     });
+  }
+
+  async acceptGig(id: string, studentId: string): Promise<GigResponse> {
+    const gig = await this.loadGigWithRelations(this.prisma, id);
+    this.assertAssignedStudent(gig, studentId);
+    if (gig.status !== "ASSIGNED") {
+      throw new BadRequestException("Only assigned gigs can be accepted");
+    }
+
+    const updated = await this.prisma.gig.update({
+      where: { id },
+      data: { status: "IN_PROGRESS" },
+    });
+    return this.toGigResponse({ ...gig, ...updated });
+  }
+
+  async declineGig(id: string, studentId: string): Promise<GigResponse> {
+    const gig = await this.loadGigWithRelations(this.prisma, id);
+    this.assertAssignedStudent(gig, studentId);
+    if (gig.status !== "ASSIGNED") {
+      throw new BadRequestException("Only assigned gigs can be declined");
+    }
+
+    const updated = await this.prisma.gig.update({
+      where: { id },
+      data: {
+        status: "OPEN",
+        assignedStudentId: null,
+        completedAt: null,
+      },
+    });
+    return this.toGigResponse({ ...gig, ...updated });
+  }
+
+  async completeGig(id: string, studentId: string): Promise<GigResponse> {
+    const gig = await this.loadGigWithRelations(this.prisma, id);
+    this.assertAssignedStudent(gig, studentId);
+    if (gig.status !== "IN_PROGRESS") {
+      throw new BadRequestException("Only in-progress gigs can be marked complete");
+    }
+
+    const updated = await this.prisma.gig.update({
+      where: { id },
+      data: { status: "PENDING_COMPLETION" },
+    });
+    return this.toGigResponse({ ...gig, ...updated });
+  }
+
+  async confirmGigCompletion(id: string, userId: string): Promise<GigResponse> {
+    const gig = await this.loadGigWithRelations(this.prisma, id);
+    if (gig.createdById !== userId) {
+      throw new ForbiddenException("You do not own this gig");
+    }
+    if (gig.status !== "PENDING_COMPLETION") {
+      throw new BadRequestException("Only gigs pending confirmation can be confirmed");
+    }
+
+    const updated = await this.prisma.gig.update({
+      where: { id },
+      data: {
+        status: "COMPLETED",
+        completedAt: new Date(),
+      },
+    });
+    return this.toGigResponse({ ...gig, ...updated });
+  }
+
+  private assertAssignedStudent(
+    gig: GigWithRelations,
+    studentId: string,
+  ): void {
+    if (gig.assignedStudentId !== studentId) {
+      throw new ForbiddenException("Gig is not assigned to this student");
+    }
   }
 
   private async loadGigWithRelations(
@@ -152,6 +241,7 @@ export class GigsService {
           orderBy: [{ score: "desc" }, { createdAt: "asc" }],
         },
         assignedStudent: true,
+        createdBy: true,
       },
     });
 
@@ -166,6 +256,7 @@ export class GigsService {
     return {
       id: gig.id,
       createdAt: gig.createdAt.toISOString(),
+      ...(gig.completedAt != null ? { completedAt: gig.completedAt.toISOString() } : {}),
       status: this.mapGigStatus(gig.status),
       gig: {
         title: gig.title,
@@ -179,6 +270,10 @@ export class GigsService {
       },
       candidates: gig.matches.map((match) => this.toCandidate(match)),
       assignedStudentId: gig.assignedStudentId,
+      manager: {
+        name: gig.createdBy.email.split("@")[0] ?? "Manager",
+        email: gig.createdBy.email,
+      },
     };
   }
 
@@ -197,6 +292,17 @@ export class GigsService {
   }
 
   private mapGigStatus(status: PrismaGig["status"]): GigStatus {
-    return status === "ASSIGNED" ? "Assigned" : "Open";
+    switch (status) {
+      case "OPEN":
+        return "Open";
+      case "ASSIGNED":
+        return "Assigned";
+      case "IN_PROGRESS":
+        return "InProgress";
+      case "PENDING_COMPLETION":
+        return "PendingConfirmation";
+      case "COMPLETED":
+        return "Completed";
+    }
   }
 }

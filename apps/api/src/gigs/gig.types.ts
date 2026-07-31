@@ -1,6 +1,11 @@
 import type { CreateGigDto } from "../dto/create-gig.dto.js";
 
-export type GigStatus = "Open" | "Assigned";
+export type GigStatus =
+  | "Open"
+  | "Assigned"
+  | "InProgress"
+  | "PendingConfirmation"
+  | "Completed";
 
 export type StudentScoringInput = {
   id: string;
@@ -25,9 +30,14 @@ export type GigCandidate = {
 export type GigResponse = {
   id: string;
   createdAt: string;
+  completedAt?: string | null;
   status: GigStatus;
   gig: CreateGigDto;
   candidates: GigCandidate[];
   assignedStudentId?: string | null;
   selectedCandidate?: GigCandidate;
+  manager: {
+    name: string;
+    email: string;
+  };
 };
