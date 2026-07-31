@@ -244,6 +244,90 @@ async function bootstrap() {
           },
         },
       },
+      "/api/gigs/{id}/accept": {
+        post: {
+          tags: ["CampusGigs"],
+          summary: "Accept an assigned gig (starts work)",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Gig UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: { description: "Gig accepted and moved to in progress." },
+            401: { description: "Unauthorized." },
+            403: { description: "Student role required." },
+          },
+        },
+      },
+      "/api/gigs/{id}/decline": {
+        post: {
+          tags: ["CampusGigs"],
+          summary: "Decline an assigned gig (returns gig to open)",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Gig UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: { description: "Gig declined and returned to open." },
+            401: { description: "Unauthorized." },
+            403: { description: "Student role required." },
+          },
+        },
+      },
+      "/api/gigs/{id}/complete": {
+        post: {
+          tags: ["CampusGigs"],
+          summary: "Mark an in-progress gig as awaiting confirmation",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Gig UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: { description: "Gig marked as pending completion." },
+            401: { description: "Unauthorized." },
+            403: { description: "Student role required." },
+          },
+        },
+      },
+      "/api/gigs/{id}/confirm": {
+        post: {
+          tags: ["CampusGigs"],
+          summary: "Confirm completion of a gig",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Gig UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: { description: "Gig marked as completed." },
+            401: { description: "Unauthorized." },
+            403: { description: "Manager role required." },
+          },
+        },
+      },
     },
     components: {
       securitySchemes: {
@@ -345,7 +429,11 @@ async function bootstrap() {
           properties: {
             id: { type: "string", format: "uuid" },
             createdAt: { type: "string", format: "date-time" },
-            status: { type: "string", enum: ["Open", "Assigned"] },
+            completedAt: { type: "string", format: "date-time", nullable: true },
+            status: {
+              type: "string",
+              enum: ["Open", "Assigned", "InProgress", "PendingConfirmation", "Completed"],
+            },
             gig: { $ref: "#/components/schemas/CreateGigDto" },
             candidates: {
               type: "array",
@@ -353,6 +441,13 @@ async function bootstrap() {
             },
             assignedStudentId: { type: "string", format: "uuid", nullable: true },
             selectedCandidate: { $ref: "#/components/schemas/CandidateScore" },
+            manager: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+            },
           },
         },
       },
