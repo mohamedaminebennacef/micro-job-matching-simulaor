@@ -16,6 +16,7 @@ import { ChipInput } from "@/components/ui/chip-input";
 import { Avatar } from "@/components/ui/avatar";
 import { assignGig as apiAssignGig, createGig as apiCreateGig, createGigInput } from "@/lib/api";
 import type { GigResult, CandidateScore } from "@/lib/api";
+import { statusLabel, statusTone } from "@/lib/status";
 import { toast } from "sonner";
 import { Sparkles, Trophy, ChevronRight, ChevronLeft, MapPin, Clock, DollarSign, CheckCircle } from "lucide-react";
 
@@ -341,7 +342,7 @@ export default function CreateGigPage() {
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         <span className="rounded-md bg-white px-2 py-1 text-[11px] font-medium shadow-sm dark:bg-slate-900">{result.gig.durationHours}h</span>
                         <span className="rounded-md bg-white px-2 py-1 text-[11px] font-medium shadow-sm dark:bg-slate-900">${result.gig.hourlyRate}/hr</span>
-                        <Badge variant="secondary" className={result.status === "Assigned" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400"}>{result.status}</Badge>
+                        <Badge variant="secondary" className={statusTone(result.status)}>{statusLabel(result.status)}</Badge>
                       </div>
                       {result.selectedCandidate && (
                         <div className="mt-4 rounded-lg bg-white p-3 shadow-sm dark:bg-slate-900">
@@ -424,7 +425,7 @@ export default function CreateGigPage() {
                         {topCandidates.filter((c) => lowAlignment || !(tiedLeaders.length <= 1 && c === result.candidates[0])).map((candidate) => {
                           const isTiedLeader = tiedLeaders.length > 1 && candidate.matchPercent === topScore;
                           const rank = topCandidates.indexOf(candidate);
-                          return <CandidateCard key={candidate.student.id} candidate={candidate} rank={rank} isBest={false} isTied={isTiedLeader} isAssigned={result.assignedStudentId === candidate.student.id} isPending={isPending} isGigAssigned={result.status === "Assigned"} onAssign={handleAssignClick} />;
+                          return <CandidateCard key={candidate.student.id} candidate={candidate} rank={rank} isBest={false} isTied={isTiedLeader} isAssigned={result.assignedStudentId === candidate.student.id} isPending={isPending} isGigAssigned={result.status !== "Open"} onAssign={handleAssignClick} />;
                         })}
                       </motion.div>
                     </motion.div>
