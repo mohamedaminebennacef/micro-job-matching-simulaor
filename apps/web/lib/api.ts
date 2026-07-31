@@ -130,14 +130,26 @@ export function createGigInput(data: {
   };
 }
 
+export type GigStatus =
+  | "Open"
+  | "Assigned"
+  | "InProgress"
+  | "PendingConfirmation"
+  | "Completed";
+
 export interface GigResult {
   id: string;
   createdAt: string;
-  status: "Open" | "Assigned";
+  completedAt?: string;
+  status: GigStatus;
   gig: GigInput;
   candidates: CandidateScore[];
   assignedStudentId?: string;
   selectedCandidate?: CandidateScore;
+  manager: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface StudentProfileShort {
@@ -177,4 +189,20 @@ export async function assignGig(
     method: "POST",
     body: JSON.stringify({ studentId }),
   });
+}
+
+export async function acceptAssignment(gigId: string): Promise<GigResult> {
+  return request<GigResult>(`/api/gigs/${gigId}/accept`, { method: "POST" });
+}
+
+export async function declineAssignment(gigId: string): Promise<GigResult> {
+  return request<GigResult>(`/api/gigs/${gigId}/decline`, { method: "POST" });
+}
+
+export async function completeAssignment(gigId: string): Promise<GigResult> {
+  return request<GigResult>(`/api/gigs/${gigId}/complete`, { method: "POST" });
+}
+
+export async function confirmCompletion(gigId: string): Promise<GigResult> {
+  return request<GigResult>(`/api/gigs/${gigId}/confirm`, { method: "POST" });
 }
