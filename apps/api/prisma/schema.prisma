@@ -15,6 +15,9 @@ enum Role {
 enum GigStatus {
   OPEN
   ASSIGNED
+  IN_PROGRESS
+  PENDING_COMPLETION
+  COMPLETED
 }
 
 model User {
@@ -58,6 +61,7 @@ model Gig {
   createdById        String    @db.Uuid
   createdBy          User      @relation("GigCreator", fields: [createdById], references: [id], onDelete: Cascade)
   createdAt          DateTime  @default(now())
+  completedAt        DateTime?
   skills             String[]
   schedule           String?
   contact            String?
