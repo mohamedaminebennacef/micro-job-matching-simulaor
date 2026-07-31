@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/protected-route";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { getGig, assignGig } from "@/lib/api";
+import { getGig, assignGig, confirmCompletion } from "@/lib/api";
+import { statusLabel, statusTone } from "@/lib/status";
 import { toast } from "sonner";
 import type { GigResult, CandidateScore } from "@/lib/api";
 import { Avatar } from "@/components/ui/avatar";
@@ -63,6 +64,7 @@ export default function GigDetailPage() {
   const [gig, setGig] = useState<GigResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [confirmAssign, setConfirmAssign] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,6 +77,7 @@ export default function GigDetailPage() {
 
   const topCandidate = useMemo(() => gig?.candidates[0], [gig]);
   const restCandidates = useMemo(() => gig?.candidates.slice(1) ?? [], [gig]);
+  const canAssign = gig?.status === "Open";
 
   function handleAssignClick(studentId: string) {
     setConfirmAssign(studentId);
@@ -93,6 +96,20 @@ export default function GigDetailPage() {
         toast.error("Failed to assign gig.");
     } finally {
       setAssigning(null);
+    }
+  }
+
+  async function handleConfirmCompletion() {
+    if (!gig) return;
+    setConfirming(true);
+    try {
+      const updated = await confirmCompletion(gig.id);
+      setGig(updated);
+      toast.success("Completion confirmed — gig is complete.");
+    } catch {
+      toast.error("Failed to confirm completion.");
+    } finally {
+      setConfirming(false);
     }
   }
 
@@ -132,6 +149,35 @@ export default function GigDetailPage() {
           </div>
         ) : !gig ? null : (
           <div className="space-y-8">
+            {/* Gig status bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge variant="secondary" className={statusTone(gig.status)}>{statusLabel(gig.status)}</Badge>
+                {gig.assignedStudentId && (
+                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                    Assigned to{" "}
+                    <span className="font-medium">
+                      {gig.candidates.find((c) => c.student.id === gig.assignedStudentId)?.student.name ?? "—"}
+                    </span>
+                  </span>
+                )}
+                {gig.status === "Completed" && gig.completedAt && (
+                  <span className="text-sm text-slate-500">
+                    Completed on {new Date(gig.completedAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+              {gig.status === "PendingConfirmation" && (
+                <Button
+                  className="rounded-lg bg-amber-600 hover:bg-amber-700 gap-1.5"
+                  disabled={confirming}
+                  onClick={handleConfirmCompletion}
+                >
+                  <CheckCircle2 className="h-4 w-4" /> {confirming ? "Confirming..." : "Confirm Completion"}
+                </Button>
+              )}
+            </div>
+
             {/* Top match spotlight */}
             {topCandidate && (
               <motion.div
@@ -167,13 +213,19 @@ export default function GigDetailPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button
-                      className="rounded-lg bg-white text-slate-900 hover:bg-white/90"
-                      onClick={() => handleAssignClick(topCandidate.student.id)}
-                      disabled={assigning === topCandidate.student.id}
-                    >
-                      <CheckCircle2 className="mr-1.5 h-4 w-4" /> {assigning === topCandidate.student.id ? "Assigning..." : "Assign"}
-                    </Button>
+                    {canAssign ? (
+                      <Button
+                        className="rounded-lg bg-white text-slate-900 hover:bg-white/90"
+                        onClick={() => handleAssignClick(topCandidate.student.id)}
+                        disabled={assigning === topCandidate.student.id}
+                      >
+                        <CheckCircle2 className="mr-1.5 h-4 w-4" /> {assigning === topCandidate.student.id ? "Assigning..." : "Assign"}
+                      </Button>
+                    ) : gig.assignedStudentId === topCandidate.student.id ? (
+                      <span className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white/90 backdrop-blur">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Assigned
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </motion.div>
@@ -241,11 +293,11 @@ export default function GigDetailPage() {
                             size="sm"
                             className="h-7 px-2 text-xs"
                             onClick={() => handleAssignClick(candidate.student.id)}
-                            disabled={gig.status === "Assigned" || assigning === candidate.student.id}
+                            disabled={!canAssign || assigning === candidate.student.id}
                           >
                             Details <ChevronDown className="ml-1 h-3 w-3" />
                           </Button>
-                          {gig.status !== "Assigned" && (
+                          {canAssign && (
                             <Button
                               size="sm"
                               className="rounded-lg bg-slate-900 hover:bg-slate-800"
