@@ -206,3 +206,39 @@ export async function completeAssignment(gigId: string): Promise<GigResult> {
 export async function confirmCompletion(gigId: string): Promise<GigResult> {
   return request<GigResult>(`/api/gigs/${gigId}/confirm`, { method: "POST" });
 }
+
+export type NotificationType = "INFO" | "SUCCESS" | "WARNING";
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  link?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export async function listNotifications(): Promise<NotificationItem[]> {
+  return request<NotificationItem[]>("/api/notifications");
+}
+
+export async function getUnreadNotificationCount(): Promise<{ count: number }> {
+  return request<{ count: number }>("/api/notifications/unread");
+}
+
+export async function markNotificationRead(id: string): Promise<NotificationItem> {
+  return request<NotificationItem>(`/api/notifications/${id}/read`, {
+    method: "PATCH",
+  });
+}
+
+export async function markAllNotificationsRead(): Promise<{ count: number }> {
+  return request<{ count: number }>("/api/notifications/read-all", {
+    method: "PATCH",
+  });
+}
+
+export async function deleteNotification(id: string): Promise<void> {
+  return request<void>(`/api/notifications/${id}`, { method: "DELETE" });
+}
