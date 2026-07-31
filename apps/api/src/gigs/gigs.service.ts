@@ -17,6 +17,8 @@ import { AssignGigDto } from "../dto/assign-gig.dto.js";
 import { CreateGigDto } from "../dto/create-gig.dto.js";
 import { AiMatchingService } from "../ai/ai-matching.service.js";
 import { MatchesService } from "../matches/matches.service.js";
+import { NotificationsService } from "../notifications/notifications.service.js";
+import type { CreateNotificationInput } from "../notifications/notifications.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { StudentsService } from "../students/students.service.js";
 import type { GigCandidate, GigResponse, GigStatus } from "./gig.types.js";
@@ -39,6 +41,8 @@ export class GigsService {
     @Inject(MatchesService) private readonly matchesService: MatchesService,
     @Inject(AiMatchingService)
     private readonly aiMatchingService: AiMatchingService,
+    @Inject(NotificationsService)
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async createGig(createGigDto: CreateGigDto, createdById: string): Promise<GigResponse> {
@@ -145,6 +149,21 @@ export class GigsService {
         },
       });
 
+      const studentUserId =
+        await this.notificationsService.resolveStudentUserId(assignGigDto.studentId);
+      if (studentUserId) {
+        await this.notify(
+          {
+            userId: studentUserId,
+            title: "New gig assignment",
+            message: `You have been assigned to '${gig.title}'.`,
+            type: "SUCCESS",
+            link: "/student/assigned",
+          },
+          transaction,
+        );
+      }
+
       const updatedGig = await this.loadGigWithRelations(transaction, id);
       return {
         ...this.toGigResponse(updatedGig),
@@ -164,6 +183,15 @@ export class GigsService {
       where: { id },
       data: { status: "IN_PROGRESS" },
     });
+
+    await this.notify({
+      userId: gig.createdById,
+      title: "Gig accepted",
+      message: `${gig.assignedStudent?.fullName ?? "Student"} accepted the gig '${gig.title}'.`,
+      type: "INFO",
+      link: `/manager/gigs/${id}`,
+    });
+
     return this.toGigResponse({ ...gig, ...updated });
   }
 
@@ -182,6 +210,15 @@ export class GigsService {
         completedAt: null,
       },
     });
+
+    await this.notify({
+      userId: gig.createdById,
+      title: "Gig declined",
+      message: `${gig.assignedStudent?.fullName ?? "Student"} declined the gig '${gig.title}'.`,
+      type: "WARNING",
+      link: `/manager/gigs/${id}`,
+    });
+
     return this.toGigResponse({ ...gig, ...updated });
   }
 
@@ -196,6 +233,15 @@ export class GigsService {
       where: { id },
       data: { status: "PENDING_COMPLETION" },
     });
+
+    await this.notify({
+      userId: gig.createdById,
+      title: "Completion pending",
+      message: `${gig.assignedStudent?.fullName ?? "Student"} marked the gig '${gig.title}' as completed and is awaiting your confirmation.`,
+      type: "INFO",
+      link: `/manager/gigs/${id}`,
+    });
+
     return this.toGigResponse({ ...gig, ...updated });
   }
 
@@ -215,7 +261,33 @@ export class GigsService {
         completedAt: new Date(),
       },
     });
+
+    if (gig.assignedStudentId) {
+      const studentUserId =
+        await this.notificationsService.resolveStudentUserId(gig.assignedStudentId);
+      if (studentUserId) {
+        await this.notify({
+          userId: studentUserId,
+          title: "Gig completed",
+          message: `Your gig '${gig.title}' has been marked as completed.`,
+          type: "SUCCESS",
+          link: "/student/history",
+        });
+      }
+    }
+
     return this.toGigResponse({ ...gig, ...updated });
+  }
+
+  private async notify(
+    input: CreateNotificationInput,
+    client?: PrismaLikeClient,
+  ): Promise<void> {
+    try {
+      await this.notificationsService.create(input, client);
+    } catch (err) {
+      console.error("[notifications] failed to create notification:", err);
+    }
   }
 
   private assertAssignedStudent(
