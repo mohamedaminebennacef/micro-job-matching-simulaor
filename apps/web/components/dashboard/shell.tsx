@@ -13,7 +13,6 @@ import {
   User,
   LogOut,
   Search,
-  Bell,
   Sun,
   Moon,
   Sparkles,
@@ -27,6 +26,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotificationBell } from "@/components/notification-bell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -181,10 +181,7 @@ export function DashboardShell({
             <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={toggleTheme}>
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            </Button>
+            <NotificationBell />
             <Separator orientation="vertical" className="mx-1 h-6" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
