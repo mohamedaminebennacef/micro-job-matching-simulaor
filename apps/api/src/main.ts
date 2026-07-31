@@ -33,7 +33,7 @@ async function bootstrap() {
       version: "1.0.0",
     },
     servers: [{ url: process.env.CORS_ORIGIN ?? "http://localhost:4000" }],
-    tags: [{ name: "CampusGigs" }, { name: "Auth" }, { name: "Users" }],
+    tags: [{ name: "CampusGigs" }, { name: "Auth" }, { name: "Users" }, { name: "Notifications" }],
     paths: {
       "/api/auth/signup": {
         post: {
@@ -328,6 +328,118 @@ async function bootstrap() {
           },
         },
       },
+      "/api/notifications": {
+        get: {
+          tags: ["Notifications"],
+          summary: "List own notifications, newest first",
+          security: [{ Bearer: [] }],
+          responses: {
+            200: {
+              description: "List of notifications.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/NotificationRecord" },
+                  },
+                },
+              },
+            },
+            401: { description: "Unauthorized." },
+          },
+        },
+      },
+      "/api/notifications/unread": {
+        get: {
+          tags: ["Notifications"],
+          summary: "Get unread notification count",
+          security: [{ Bearer: [] }],
+          responses: {
+            200: {
+              description: "Unread count.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { count: { type: "number", example: 3 } },
+                  },
+                },
+              },
+            },
+            401: { description: "Unauthorized." },
+          },
+        },
+      },
+      "/api/notifications/{id}/read": {
+        patch: {
+          tags: ["Notifications"],
+          summary: "Mark a notification as read",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Notification UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: {
+              description: "Notification marked as read.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/NotificationRecord" },
+                },
+              },
+            },
+            401: { description: "Unauthorized." },
+            404: { description: "Notification not found." },
+          },
+        },
+      },
+      "/api/notifications/read-all": {
+        patch: {
+          tags: ["Notifications"],
+          summary: "Mark all own notifications as read",
+          security: [{ Bearer: [] }],
+          responses: {
+            200: {
+              description: "All notifications marked as read.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { count: { type: "number" } },
+                  },
+                },
+              },
+            },
+            401: { description: "Unauthorized." },
+          },
+        },
+      },
+      "/api/notifications/{id}": {
+        delete: {
+          tags: ["Notifications"],
+          summary: "Delete a notification",
+          security: [{ Bearer: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              description: "Notification UUID",
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            200: { description: "Notification deleted." },
+            401: { description: "Unauthorized." },
+            404: { description: "Notification not found." },
+          },
+        },
+      },
     },
     components: {
       securitySchemes: {
@@ -448,6 +560,19 @@ async function bootstrap() {
                 email: { type: "string" },
               },
             },
+          },
+        },
+        NotificationRecord: {
+          type: "object",
+          required: ["id", "title", "message", "type", "read", "createdAt"],
+          properties: {
+            id: { type: "string", format: "uuid" },
+            title: { type: "string" },
+            message: { type: "string" },
+            type: { type: "string", enum: ["INFO", "SUCCESS", "WARNING"] },
+            link: { type: "string", nullable: true },
+            read: { type: "boolean" },
+            createdAt: { type: "string", format: "date-time" },
           },
         },
       },
