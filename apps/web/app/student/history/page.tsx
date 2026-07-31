@@ -8,10 +8,8 @@ import { listGigs } from "@/lib/api";
 import type { GigResult } from "@/lib/api";
 import { statusLabel, statusTone } from "@/lib/status";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { History, MapPin, Clock, DollarSign, Calendar, Inbox } from "lucide-react";
-import Link from "next/link";
 
 export default function StudentHistory() {
   const [gigs, setGigs] = useState<GigResult[]>([]);
@@ -26,15 +24,7 @@ export default function StudentHistory() {
 
   return (
     <ProtectedRoute allowedRoles={["STUDENT"]}>
-      <DashboardLayout
-        breadcrumb="History"
-        title="Gig history"
-        actions={
-          <Link href="/student">
-            <Button variant="outline" className="rounded-lg">Dashboard</Button>
-          </Link>
-        }
-      >
+      <DashboardLayout breadcrumb="History" title="Gig history">
         <div className="space-y-5">
           {loading ? (
             <div className="space-y-3">

@@ -119,15 +119,7 @@ export default function StudentProfilePage() {
 
   return (
     <ProtectedRoute allowedRoles={["STUDENT"]}>
-      <DashboardLayout
-        breadcrumb="Profile"
-        title="Your profile"
-        actions={
-          <Button onClick={handleSubmit} disabled={saving} className="rounded-lg bg-slate-900 hover:bg-slate-800">
-            {saving ? "Saving..." : "Save changes"}
-          </Button>
-        }
-      >
+      <DashboardLayout breadcrumb="Profile" title="Your profile">
         {loading ? (
           <div className="space-y-4">
             <div className="h-48 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
@@ -160,8 +152,9 @@ export default function StudentProfilePage() {
                 </div>
               </motion.div>
 
-              {/* Basics */}
-              <Section title="About you">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basics */}
+                <Section title="About you">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Full name">
                     <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" className="rounded-lg" />
@@ -202,6 +195,13 @@ export default function StudentProfilePage() {
                   </Field>
                 </div>
               </Section>
+
+              <div className="flex justify-end">
+                <Button type="submit" disabled={saving} className="rounded-lg bg-slate-900 hover:bg-slate-800">
+                  {saving ? "Saving..." : "Save changes"}
+                </Button>
+              </div>
+              </form>
             </div>
 
             {/* Sidebar */}
