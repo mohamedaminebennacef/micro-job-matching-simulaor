@@ -4,22 +4,18 @@ import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/protected-route";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { EmptyState } from "@/components/dashboard/shell";
-import { listGigs } from "@/lib/api";
+import { acceptAssignment, completeAssignment, declineAssignment, listGigs } from "@/lib/api";
 import type { GigResult } from "@/lib/api";
+import { statusLabel, statusTone } from "@/lib/status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { MapPin, Clock, DollarSign, Calendar, Briefcase } from "lucide-react";
+import { MapPin, Clock, DollarSign, Calendar, Briefcase, CheckCircle2, XCircle, Flag } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-
-const statusStyles: Record<string, string> = {
-  Assigned: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
-  Open: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
-};
 
 function Item({ icon: Icon, label, value, className }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; className?: string }) {
   return (
@@ -35,14 +31,48 @@ function Item({ icon: Icon, label, value, className }: { icon: React.ComponentTy
 export default function AssignedGigs() {
   const [gigs, setGigs] = useState<GigResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [openGig, setOpenGig] = useState<GigResult | null>(null);
 
   useEffect(() => {
     listGigs()
-      .then(setGigs)
+      .then((result) => setGigs(result.filter((g) => g.status !== "Completed" && g.status !== "Open")))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  function applyGig(updated: GigResult) {
+    setGigs((cur) =>
+      updated.status === "Open"
+        ? cur.filter((g) => g.id !== updated.id)
+        : cur.map((g) => (g.id === updated.id ? updated : g)),
+    );
+    setOpenGig((cur) => (cur && cur.id === updated.id ? updated : cur));
+  }
+
+  async function runAction(g: GigResult, action: "accept" | "decline" | "complete") {
+    setPendingId(g.id);
+    try {
+      const updated =
+        action === "accept"
+          ? await acceptAssignment(g.id)
+          : action === "decline"
+            ? await declineAssignment(g.id)
+            : await completeAssignment(g.id);
+      applyGig(updated);
+      toast.success(
+        action === "accept"
+          ? "Gig accepted — now in progress"
+          : action === "decline"
+            ? "Gig declined"
+            : "Marked for completion",
+      );
+    } catch {
+      toast.error("Action failed. Please try again.");
+    } finally {
+      setPendingId(null);
+    }
+  }
 
   return (
     <ProtectedRoute allowedRoles={["STUDENT"]}>
@@ -54,17 +84,17 @@ export default function AssignedGigs() {
             ))}
           </div>
         ) : gigs.length === 0 ? (
-        <EmptyState
-          icon={Briefcase}
-          title="No gigs yet"
-          description="Complete your profile to start getting matched to campus gigs."
-          action={
-            <Link href="/student/profile">
-              <Button>Complete profile</Button>
-            </Link>
-          }
-        />
-      ) : (
+          <EmptyState
+            icon={Briefcase}
+            title="No gigs yet"
+            description="When a manager assigns you a gig, it will show up here for you to accept."
+            action={
+              <Link href="/student/profile">
+                <Button>Complete profile</Button>
+              </Link>
+            }
+          />
+        ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {gigs.map((g, i) => (
               <motion.article
@@ -72,7 +102,7 @@ export default function AssignedGigs() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                className="group flex flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -82,19 +112,66 @@ export default function AssignedGigs() {
                       <span className="truncate">{g.gig.location}</span>
                     </div>
                   </div>
-                  <Badge variant="secondary" className={statusStyles[g.status] ?? ""}>
-                    {g.status}
+                  <Badge variant="secondary" className={statusTone(g.status)}>
+                    {statusLabel(g.status)}
                   </Badge>
                 </div>
 
+                <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                  {g.gig.description}
+                </p>
+
                 <dl className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                  <Item icon={MapPin} label="Location" value={g.gig.location} />
-                  <Item icon={Clock} label="Hours" value={`${g.gig.durationHours}h`} />
-                  <Item icon={Calendar} label="Rate" value={`$${g.gig.hourlyRate}/hr`} />
-                  <Item icon={DollarSign} label="Total" value={`$${g.gig.durationHours * g.gig.hourlyRate}`} />
+                  <Item icon={MapPin} label="Location" value={g.gig.location} className="py-2" />
+                  <Item icon={Clock} label="Hours" value={`${g.gig.durationHours}h`} className="py-2" />
+                  <Item icon={Calendar} label="Rate" value={`$${g.gig.hourlyRate}/hr`} className="py-2" />
+                  <Item icon={DollarSign} label="Total" value={`$${g.gig.durationHours * g.gig.hourlyRate}`} className="py-2" />
                 </dl>
 
-                <div className="mt-4 flex items-center justify-end border-t border-slate-100 pt-3 dark:border-slate-800">
+                <div className="mt-3 space-y-1 text-xs text-slate-500">
+                  <p className="flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-wider">Manager</span> · {g.manager.name}
+                  </p>
+                  <p className="flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-wider">Assigned</span> · {new Date(g.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                  {g.status === "Assigned" && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-lg gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400"
+                        disabled={pendingId === g.id}
+                        onClick={() => runAction(g, "decline")}
+                      >
+                        <XCircle className="h-3.5 w-3.5" /> Decline
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="rounded-lg bg-slate-900 hover:bg-slate-800 gap-1.5"
+                        disabled={pendingId === g.id}
+                        onClick={() => runAction(g, "accept")}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Accept
+                      </Button>
+                    </>
+                  )}
+                  {g.status === "InProgress" && (
+                    <Button
+                      size="sm"
+                      className="rounded-lg bg-slate-900 hover:bg-slate-800 gap-1.5"
+                      disabled={pendingId === g.id}
+                      onClick={() => runAction(g, "complete")}
+                    >
+                      <Flag className="h-3.5 w-3.5" /> Mark as Completed
+                    </Button>
+                  )}
+                  {g.status === "PendingConfirmation" && (
+                    <span className="text-xs text-amber-600 dark:text-amber-400">Awaiting manager confirmation</span>
+                  )}
                   <Button variant="outline" size="sm" className="rounded-lg" onClick={() => setOpenGig(g)}>Details</Button>
                 </div>
               </motion.article>
@@ -108,11 +185,13 @@ export default function AssignedGigs() {
               <>
                 <DialogHeader>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className={statusStyles[openGig.status] ?? ""}>{openGig.status}</Badge>
-                    <span className="text-xs text-slate-500">{new Date(openGig.createdAt).toLocaleDateString()}</span>
+                    <Badge variant="secondary" className={statusTone(openGig.status)}>{statusLabel(openGig.status)}</Badge>
+                    <span className="text-xs text-slate-500">Assigned {new Date(openGig.createdAt).toLocaleDateString()}</span>
                   </div>
                   <DialogTitle className="mt-2 text-left text-lg">{openGig.gig.title}</DialogTitle>
-                  <DialogDescription className="text-left">{openGig.gig.location}</DialogDescription>
+                  <DialogDescription className="text-left">
+                    {openGig.gig.location} · Posted by {openGig.manager.name}
+                  </DialogDescription>
                 </DialogHeader>
 
                 <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{openGig.gig.description}</p>
@@ -156,15 +235,37 @@ export default function AssignedGigs() {
 
                 <DialogFooter>
                   <Button variant="outline" className="rounded-lg" onClick={() => setOpenGig(null)}>Close</Button>
-                  <Button
-                    className="rounded-lg bg-slate-900 hover:bg-slate-800"
-                    onClick={() => {
-                      toast.success("Attendance confirmed", { description: openGig.gig.title });
-                      setOpenGig(null);
-                    }}
-                  >
-                    Confirm attendance
-                  </Button>
+                  {openGig.status === "Assigned" && (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 gap-1.5"
+                        disabled={pendingId === openGig.id}
+                        onClick={() => runAction(openGig, "decline")}
+                      >
+                        <XCircle className="h-3.5 w-3.5" /> Decline
+                      </Button>
+                      <Button
+                        className="rounded-lg bg-slate-900 hover:bg-slate-800 gap-1.5"
+                        disabled={pendingId === openGig.id}
+                        onClick={() => runAction(openGig, "accept")}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Accept
+                      </Button>
+                    </>
+                  )}
+                  {openGig.status === "InProgress" && (
+                    <Button
+                      className="rounded-lg bg-slate-900 hover:bg-slate-800 gap-1.5"
+                      disabled={pendingId === openGig.id}
+                      onClick={() => runAction(openGig, "complete")}
+                    >
+                      <Flag className="h-3.5 w-3.5" /> Mark as Completed
+                    </Button>
+                  )}
+                  {openGig.status === "PendingConfirmation" && (
+                    <span className="text-xs text-amber-600 dark:text-amber-400">Awaiting manager confirmation</span>
+                  )}
                 </DialogFooter>
               </>
             )}
